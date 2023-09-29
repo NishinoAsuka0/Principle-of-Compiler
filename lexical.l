@@ -101,6 +101,18 @@ SEMI	";"
 		char c = input();
 		while (c != '\n') c = input();
 	}
+"/*"	{
+		char c = input();
+		while(true){
+			if(c == '*'){
+				c = input();
+				if(c == '/') break;
+			}
+			else{
+				c = input();
+			}
+		}
+	}
 \n	{
 		yycolumn = 1;
 	}

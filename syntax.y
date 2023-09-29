@@ -14,7 +14,7 @@
 		NVL,
 		VL
 	};
-	struct Node {
+	struct TreeNode {
 		char *nodeName;
 		enum NodeType nodeType;
 		int lineNum;
@@ -23,8 +23,8 @@
 			float Valfloat;
 			char* Valstr;
 		};
-		struct Node* firstChild;
-		struct Node* Sibc;
+		struct TreeNode* firstChild;
+		struct TreeNode* bro;
 	};
 %}
 
@@ -33,6 +33,7 @@
  int type_int;
  float type_float;
  double type_double;
+ struct TreeNode* type_pnode;
 }
 
 /* declared tokens */
@@ -72,7 +73,23 @@
 
 %%
 
-Program :ExtDefList
+Program :ExtDefList	{
+	$$ = constructNode("program", NTML, @$.first_line);
+	construct($$, 1, $1);			
+	root = $$;
+}
+| ExtDefList error {
+	if(Err_new(@2.first_line)){
+		printError('B', @2.first_line, "Unexpected character");
+		struct TreeNode* ErrorNode = constructNode("error", NVL, @2.first_line);
+		$$ = constructNode("Program", NTML, @$.first_line);
+		construct($$, 2, $1,ErrorNode);
+		Root = $$;
+	}
+	else{
+		$$ = NULL;
+	}
+}
 ExtDefList : ExtDef ExtDefList
 | 
 ExtDef :Specifier ExtDecList SEMI
@@ -103,7 +120,7 @@ StmtList :Stmt StmtList
 Stmt :Exp SEMI
 | CompSt
 | RETURN Exp SEMI
-| IF LP Exp RP Stmt
+| IF LP Exp RP Stmt %prec LOWER_THAN_ELSE
 | IF LP Exp RP Stmt ELSE Stmt
 | WHILE LP Exp RP Stmt
 ;
@@ -113,26 +130,26 @@ Def :Specifier DecList SEMI
 DecList :Dec
 | Dec COMMA DecList
 Dec :VarDec
-| VarDec ASSIGNOP Exp
+| VarDec ASSIGN Exp
 ;
-Exp :Exp ASSIGNOP Exp
-| Exp AND Exp
-| Exp OR Exp
+Exp :Exp ASSIGN Exp
+| Exp AND Exp {$$ = $1 && $3; }
+| Exp OR Exp {$$ = $1 || $3; }
 | Exp RELOP Exp
-| Exp PLUS Exp
-| Exp MINUS Exp
-| Exp STAR Exp
-| Exp DIV Exp
-| LP Exp RP
-| MINUS Exp
-| NOT Exp
-| ID LP Args RP
-| ID LP RP
-| Exp LB Exp RB
-| Exp DOT ID
-| ID
-| INT
-| FLOAT
+| Exp PLUS Exp {$$ = $1 + $3; }
+| Exp MINUS Exp {$$ = $1 - $3; }
+| Exp STAR Exp {$$ = $1 * $3; }
+| Exp DIV Exp {$$ = $1 / $3; }
+| LP Exp RP {$$ = ($2); }
+| MINUS Exp {$$ = -$2; }
+| NOT Exp {$$ = !$2; }
+| ID LP Args RP {$$ = $1($3); }
+| ID LP RP {$$ = $1(); }
+| Exp LB Exp RB {$$ = $1[$3]; }
+| Exp DOT ID {$$ = $1.$3; }
+| ID {$$ = $1; }
+| INT { $$ = $1; }
+| FLOAT { $$ = $1; }
 Args :Exp COMMA Args
 | Exp
 ;

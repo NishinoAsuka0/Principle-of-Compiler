@@ -45,23 +45,33 @@
 }
 
 /* declared tokens */
-%token RELOP ASSIGNOP
-%token SEMI COMMA
-%token PLUS MINUS STAR DIV AND OR NOT
-%token DOT
-%token LP RP LB RB LC RC
 %token <type_int> INT
-%token <type_float> FLOAT
-%token <type_string> ID TYPE
-%token IF ELSE WHILE STRUCT RETURN
+%token <type_float>FLOAT
+%token <type_string>ID TYPE
+%token SEMI COMMA
+%token RELOP ASSIGNOP
+%token PLUS MINUS
+%token STAR DIV
+%token AND OR
+%token DOT
+%token NOT
+%token LP RP LB RB LC RC
+%token STRUCT
+%token RETURN
+%token IF ELSE
+%token WHILE
 
 /* declared non-terminals */
-%type <type_pnode> Program ExtDefList ExtDef ExtDecList Specifier StructSpecifier
-%type <type_pnode> OptTag Tag VarDec FunDec VarList ParamDec CompSt
+%type <type_pnode> Program ExtDefList ExtDef ExtDecList Specifier
+%type <type_pnode> StructSpecifier OptTag Tag
+%type <type_pnode> VarDec FunDec VarList ParamDec CompSt
 %type <type_pnode> StmtList Stmt DefList Def DecList Dec Exp Args
 
 /* precedence and associativity */
 %nonassoc error
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
+
 %right ASSIGNOP
 %left OR
 %left AND
@@ -70,8 +80,6 @@
 %left STAR DIV
 %right NOT
 %left LP RP LB RB DOT
-%nonassoc LOWER_THAN_ELSE
-%nonassoc ELSE
 
 %%
 /* High-level Definitions */

@@ -16,3 +16,8 @@ void ExtDef(struct Node* node);
 //局部语句块遍历
 void CompSt(struct Node *node, Type ntype);
 void Stmt(struct Node *node, Type ntype);
+// 判断是否使用了指定的产生式
+bool Use_This_Rule(struct Node* node, int index, ...);
+TYPE Specifier(struct Node*node);
+void ExtDecList(struct Node*node);
+

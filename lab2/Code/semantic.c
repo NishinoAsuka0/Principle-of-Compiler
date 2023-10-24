@@ -83,8 +83,37 @@ void semantic_check_start(struct Node* Root){
 	// 遍历语法树中的ExtDefList节点
 	ExtDefList(Root->firstChild);
 }
+// 判断是否使用了指定的产生式
+bool Use_This_Rule(struct Node* node, int index, ...){
+	va_list stringlist;
+	va_start(stringlist, index);
+	bool if_this = true;
+	struct Node* curNode = node->firstChild;
+	for(int i = 0; i < index; i++, curNode = curNode->bro){
+		if(curNode = NULL){
+			if_this = false;
+			break;
+		}
+		char* nowstr = va_arg(stringlist, char*);
+		if(DEBUG_FLAG){
+			printf("nowNode is %s and curNode is %s\n",nowNode->nodeName, curNode->nodeName);
+		}
+		if(!equal_string(nowstr, curNode->nodeName)){
+			if_this = false;
+			break;
+		}
+	}
+	va_end(stringlist);
+	if(curNode != NULL)
+		if_this = false;
+	return if_this;
+
+}
 //全局语法单元遍历
 void ExtDefList(struct Node *node){
+	if(DEBUG_FLAG){
+		printf("Go in ExtDefList analyse\n");
+	}
 	if(node == NULL)
 		return;
 	// 遍历第一个节点
@@ -93,8 +122,22 @@ void ExtDefList(struct Node *node){
 	ExtDefList(node->firstChild->bro);
 
 }
-void ExtDef(struct Node* node);
-//局部语句块遍历
+void ExtDef(struct Node* node)//局部语句块遍历
+{
+	//判断节点是否为空
+	if(node == NULL)
+		return;
+	if(Use_This_Rule(node, 3, "Specifier", "ExtDecList", "SEMI")){
+		if(DEBUG_FLAG)	printf("ExtDef := Specifier ExtDecList SEMI \n");
+		TYPE type = Specifier(node->firstChild);
+		ExtDecList(node->firstChild->bro, type);
+	}
+	else if
+
+}
+
+TYPE Specifier(struct Node*node);
+void ExtDecList(struct Node*node);
 void CompSt(struct Node *node, Type ntype);
 void Stmt(struct Node *node, Type ntype);
 ~

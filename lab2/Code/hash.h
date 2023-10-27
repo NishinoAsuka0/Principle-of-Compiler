@@ -40,7 +40,7 @@ struct Type_
 		LEFT,
 		RIGHT,
 		BOTH
-	}possiton;
+	}possition;
 };
 
 struct FieldList_{

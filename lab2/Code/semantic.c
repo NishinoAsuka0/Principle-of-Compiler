@@ -124,20 +124,77 @@ void ExtDefList(struct Node *node){
 }
 void ExtDef(struct Node* node)//局部语句块遍历
 {
+	if(DEBUG_FLAG){
+                printf("Go in ExtDef analyse\n");
+        }
 	//判断节点是否为空
 	if(node == NULL)
 		return;
+	Type type = Specifier(node->firstChild);
 	if(Use_This_Rule(node, 3, "Specifier", "ExtDecList", "SEMI")){
 		if(DEBUG_FLAG)	printf("ExtDef := Specifier ExtDecList SEMI \n");
-		TYPE type = Specifier(node->firstChild);
 		ExtDecList(node->firstChild->bro, type);
 	}
-	else if
-
+	else if(Use_This_Rule(node, 2, "Specifier", "SEMI")){
+		if(DEBUG_FLAG)	printf("ExtDef := Specifier SEMI \n");
+	}
+	else if(Use_This_Rule(node, 3, "Specifier", "FunDec", "CompSt")){
+		if(DEBUG_FLAG)	printf("ExtDef := Specifier FunDec CompSt\n");
+		type->possition = RIGHT;	//函数返回值均为右值
+		FunDec(node->firstChild->bro, type);
+		CompSt(node->firstChild->bro->bro, type);
+	}
+	else{
+		printf("Error! No this analyse!\n");
+	}
 }
 
-TYPE Specifier(struct Node*node);
-void ExtDecList(struct Node*node);
+Type Specifier(struct Node*node){
+	if(DEBUG_FLAG){
+                printf("Go in Specifier analyse\n");
+        }
+        //判断节点是否为空
+        if(node == NULL)
+                return;
+	if(Use_This_Rule(node, 1, "TYPE")){
+		if(DEBUG_FLAG)  printf("Specifier := TYPE \n");
+		return analyseType(node->firstChild);
+	}
+	else if(Use_Thit_Rule(node, 1, "StructSpecifier")){
+		if(DEBUG_FLAG)  printf("Specifier := StructSpecifier \n");
+		return StructSpecifier(node->firstChild);
+	}
+	else{
+                printf("Error! No this analyse!\n");
+        }
+
+}
+Type analyseType(struct Node*node){
+	if(DEBUG_FLAG){
+                printf("Go in Type analyse\n");
+        }
+        //判断节点是否为空
+        if(node == NULL)
+                return;
+	Type newType = (Type)malloc(sizeof(struct Type_));
+	if(equal_string(node->Valstr, "FLOAT")){
+		if(DEBUG_FLAG)	printf("This type is FLOAT!\n");
+		newType->kind = BASIC;
+		newType->inform.basic = 0;
+		newType->possition = BOTH;
+	}
+	else if(equal_string(node->Valstr, "INT")){
+		if(DEBUG_FLAG)  printf("This type is FLOAT!\n");
+                newType->kind = BASIC;
+                newType->inform.basic = 1;
+                newType->possition = BOTH;
+	}
+	else{
+                printf("Error! No this analyse!\n");
+        }
+	return newType;
+}
+void ExtDecList(struct Node*node, Type ntype);
 void CompSt(struct Node *node, Type ntype);
 void Stmt(struct Node *node, Type ntype);
-~
+Type StructSpecifier(struct Node* node);

@@ -66,43 +66,19 @@
 
 
 /* First part of user prologue.  */
-#line 2 "syntax.y"
+#line 2 "./syntax.y"
 
     #include <stdio.h>
     #include <string.h>
     #include <stdarg.h>
     #include "lex.yy.c"
+    #include "syntaxTree.h"
 
     void yyerror(const char* s);
 
-    int errorflag = 0;
-    int lastErrorLineno = 0;
 
-    enum NodeType { NTML, NVL, VL };
-    struct Node {
-        char* nodeName;
-        enum NodeType nodeType;
-        int lineNum;
-        union {
-            int Valint;
-            float Valfloat;
-            char* Valstr;
-        };
-        struct Node* firstChild;
-        struct Node* bro;
-    };
 
-    struct Node* Root = NULL;
-
-    struct Node* constructNode(char* nodeName, enum NodeType nodeType, int lineNum);
-    void construct(struct Node* fatherNode, int index, ...);
-    void Print_Tree(struct Node* rootNode,int SpaceNum);
-    void destroyTree(struct Node* rootNode);
-
-    void printError(char errorType, int lineno, char* msg);
-    int isNewError(int errorLineno);
-
-#line 106 "syntax.tab.c"
+#line 82 "./syntax.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -185,7 +161,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 39 "syntax.y"
+#line 15 "./syntax.y"
 
  int type_int;
  float type_float;
@@ -193,7 +169,7 @@ union YYSTYPE
  char* type_string;
  struct Node* type_pnode;
 
-#line 197 "syntax.tab.c"
+#line 173 "./syntax.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -588,17 +564,17 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    86,    86,    91,    95,    99,   103,   108,   113,   117,
-     121,   125,   130,   136,   142,   147,   154,   159,   162,   166,
-     168,   174,   178,   187,   193,   201,   205,   213,   221,   224,
-     228,   233,   237,   239,   243,   247,   253,   257,   261,   265,
-     270,   274,   280,   287,   295,   302,   305,   308,   311,   314,
-     317,   320,   323,   326,   329,   332,   335,   341,   345,   349,
-     354,   357,   359,   363,   368,   369,   371,   375,   380,   386,
-     391,   396,   401,   406,   411,   416,   421,   426,   432,   437,
-     442,   450,   458,   464,   471,   477,   483,   489,   492,   495,
-     498,   501,   504,   507,   510,   513,   516,   519,   522,   525,
-     528,   531,   535,   540
+       0,    62,    62,    67,    71,    75,    79,    84,    89,    93,
+      97,   101,   106,   112,   118,   123,   130,   135,   138,   142,
+     144,   150,   154,   163,   169,   177,   181,   189,   197,   200,
+     204,   209,   213,   215,   219,   223,   229,   233,   237,   241,
+     246,   250,   256,   263,   271,   278,   281,   284,   287,   290,
+     293,   296,   299,   302,   305,   308,   311,   317,   321,   325,
+     330,   333,   335,   339,   344,   345,   347,   351,   356,   362,
+     367,   372,   377,   382,   387,   392,   397,   402,   408,   413,
+     418,   426,   434,   440,   447,   453,   459,   465,   468,   471,
+     474,   477,   480,   483,   486,   489,   492,   495,   498,   501,
+     504,   507,   511,   516
 };
 #endif
 
@@ -1664,126 +1640,126 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 86 "syntax.y"
+#line 62 "./syntax.y"
                      {
             (yyval.type_pnode) = constructNode("Program", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 1, (yyvsp[0].type_pnode));
             Root = (yyval.type_pnode);
         }
-#line 1674 "syntax.tab.c"
+#line 1650 "./syntax.tab.c"
     break;
 
   case 3:
-#line 91 "syntax.y"
+#line 67 "./syntax.y"
                        {
             (yyval.type_pnode) = NULL;
         }
-#line 1682 "syntax.tab.c"
+#line 1658 "./syntax.tab.c"
     break;
 
   case 4:
-#line 95 "syntax.y"
+#line 71 "./syntax.y"
                                {
             (yyval.type_pnode) = constructNode("ExtDefList", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 2, (yyvsp[-1].type_pnode), (yyvsp[0].type_pnode));
         }
-#line 1691 "syntax.tab.c"
+#line 1667 "./syntax.tab.c"
     break;
 
   case 5:
-#line 99 "syntax.y"
+#line 75 "./syntax.y"
                   {
             (yyval.type_pnode) = NULL;
         }
-#line 1699 "syntax.tab.c"
+#line 1675 "./syntax.tab.c"
     break;
 
   case 6:
-#line 103 "syntax.y"
+#line 79 "./syntax.y"
                                    {
             struct Node* nodeSEMI = constructNode("SEMI", NVL, (yylsp[0]).first_line);
             (yyval.type_pnode) = constructNode("ExtDef", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), (yyvsp[-1].type_pnode), nodeSEMI);
         }
-#line 1709 "syntax.tab.c"
+#line 1685 "./syntax.tab.c"
     break;
 
   case 7:
-#line 108 "syntax.y"
+#line 84 "./syntax.y"
                      {
             struct Node* nodeSEMI = constructNode("SEMI", NVL, (yylsp[0]).first_line);
             (yyval.type_pnode) = constructNode("ExtDef", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 2, (yyvsp[-1].type_pnode), nodeSEMI);
         }
-#line 1719 "syntax.tab.c"
+#line 1695 "./syntax.tab.c"
     break;
 
   case 8:
-#line 113 "syntax.y"
+#line 89 "./syntax.y"
                               {
             (yyval.type_pnode) = constructNode("ExtDef", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), (yyvsp[-1].type_pnode), (yyvsp[0].type_pnode));
         }
-#line 1728 "syntax.tab.c"
+#line 1704 "./syntax.tab.c"
     break;
 
   case 9:
-#line 117 "syntax.y"
+#line 93 "./syntax.y"
                       {
             (yyval.type_pnode) = NULL;
         }
-#line 1736 "syntax.tab.c"
+#line 1712 "./syntax.tab.c"
     break;
 
   case 10:
-#line 121 "syntax.y"
+#line 97 "./syntax.y"
                     {
             (yyval.type_pnode) = constructNode("ExtDecList", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 1, (yyvsp[0].type_pnode));
         }
-#line 1745 "syntax.tab.c"
+#line 1721 "./syntax.tab.c"
     break;
 
   case 11:
-#line 125 "syntax.y"
+#line 101 "./syntax.y"
                               {
             struct Node* nodeCOMMA = constructNode("COMMA", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("ExtDecList", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeCOMMA, (yyvsp[0].type_pnode));
         }
-#line 1755 "syntax.tab.c"
+#line 1731 "./syntax.tab.c"
     break;
 
   case 12:
-#line 130 "syntax.y"
+#line 106 "./syntax.y"
                    {
     	    (yyval.type_pnode) = NULL;
     }
-#line 1763 "syntax.tab.c"
+#line 1739 "./syntax.tab.c"
     break;
 
   case 13:
-#line 136 "syntax.y"
+#line 112 "./syntax.y"
                  {
             struct Node* nodeTYPE = constructNode("TYPE", VL, (yylsp[0]).first_line);
             nodeTYPE->Valstr = (yyvsp[0].type_string);
             (yyval.type_pnode) = constructNode("Specifier", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 1, nodeTYPE);
         }
-#line 1774 "syntax.tab.c"
+#line 1750 "./syntax.tab.c"
     break;
 
   case 14:
-#line 142 "syntax.y"
+#line 118 "./syntax.y"
                       {
             (yyval.type_pnode) = constructNode("Specifier", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 1, (yyvsp[0].type_pnode));
         }
-#line 1783 "syntax.tab.c"
+#line 1759 "./syntax.tab.c"
     break;
 
   case 15:
-#line 147 "syntax.y"
+#line 123 "./syntax.y"
                                               {
             struct Node* nodeSTRUCT = constructNode("STRUCT", NVL, (yylsp[-4]).first_line);
             struct Node* nodeLC = constructNode("LC", NVL, (yylsp[-2]).first_line);
@@ -1791,84 +1767,84 @@ yyreduce:
             (yyval.type_pnode) = constructNode("StructSpecifier", NTML, (yyloc).first_line);           
             construct((yyval.type_pnode), 5, nodeSTRUCT, (yyvsp[-3].type_pnode), nodeLC, (yyvsp[-1].type_pnode), nodeRC);          
         }
-#line 1795 "syntax.tab.c"
+#line 1771 "./syntax.tab.c"
     break;
 
   case 16:
-#line 154 "syntax.y"
+#line 130 "./syntax.y"
                  {
             struct Node* nodeSTRUCT = constructNode("STRUCT", NVL, (yylsp[-1]).first_line);           
             (yyval.type_pnode) = constructNode("StructSpecifier", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 2, nodeSTRUCT, (yyvsp[0].type_pnode));
         }
-#line 1805 "syntax.tab.c"
+#line 1781 "./syntax.tab.c"
     break;
 
   case 17:
-#line 159 "syntax.y"
+#line 135 "./syntax.y"
                                      {
             (yyval.type_pnode) = NULL;
         }
-#line 1813 "syntax.tab.c"
+#line 1789 "./syntax.tab.c"
     break;
 
   case 18:
-#line 162 "syntax.y"
+#line 138 "./syntax.y"
                                {
             (yyval.type_pnode) = NULL;
 	}
-#line 1821 "syntax.tab.c"
+#line 1797 "./syntax.tab.c"
     break;
 
   case 19:
-#line 166 "syntax.y"
+#line 142 "./syntax.y"
                                 { (yyval.type_pnode) = NULL;}
-#line 1827 "syntax.tab.c"
+#line 1803 "./syntax.tab.c"
     break;
 
   case 20:
-#line 168 "syntax.y"
+#line 144 "./syntax.y"
             {
             struct Node* nodeID = constructNode("ID", VL, (yylsp[0]).first_line);
             nodeID->Valstr = (yyvsp[0].type_string);
             (yyval.type_pnode) = constructNode("OptTag", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 1, nodeID);
         }
-#line 1838 "syntax.tab.c"
+#line 1814 "./syntax.tab.c"
     break;
 
   case 21:
-#line 174 "syntax.y"
+#line 150 "./syntax.y"
                   {
             (yyval.type_pnode) = NULL;
         }
-#line 1846 "syntax.tab.c"
+#line 1822 "./syntax.tab.c"
     break;
 
   case 22:
-#line 178 "syntax.y"
+#line 154 "./syntax.y"
          {
             struct Node* nodeID =  constructNode("ID", VL, (yylsp[0]).first_line);
             nodeID->Valstr = (yyvsp[0].type_string);
             (yyval.type_pnode) = constructNode("Tag", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 1, nodeID);
         }
-#line 1857 "syntax.tab.c"
+#line 1833 "./syntax.tab.c"
     break;
 
   case 23:
-#line 187 "syntax.y"
+#line 163 "./syntax.y"
             {
             struct Node* nodeID = constructNode("ID", VL, (yylsp[0]).first_line);
             nodeID->Valstr = (yyvsp[0].type_string);
             (yyval.type_pnode) = constructNode("VarDec", NTML, (yyloc).first_line);
             (yyval.type_pnode)->firstChild = nodeID;
         }
-#line 1868 "syntax.tab.c"
+#line 1844 "./syntax.tab.c"
     break;
 
   case 24:
-#line 193 "syntax.y"
+#line 169 "./syntax.y"
                        {
             struct Node* nodeLB = constructNode("LB", NVL, (yylsp[-2]).first_line);
             struct Node* nodeINT = constructNode("INT", VL, (yylsp[-1]).first_line);
@@ -1877,19 +1853,19 @@ yyreduce:
             (yyval.type_pnode) = constructNode("VarDec", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 4, (yyvsp[-3].type_pnode), nodeLB, nodeINT, nodeRB);
         }
-#line 1881 "syntax.tab.c"
+#line 1857 "./syntax.tab.c"
     break;
 
   case 25:
-#line 201 "syntax.y"
+#line 177 "./syntax.y"
                          {
             (yyval.type_pnode) = NULL;
         }
-#line 1889 "syntax.tab.c"
+#line 1865 "./syntax.tab.c"
     break;
 
   case 26:
-#line 205 "syntax.y"
+#line 181 "./syntax.y"
                           {
             struct Node* nodeID = constructNode("ID", VL, (yylsp[-3]).first_line);
             nodeID->Valstr = (yyvsp[-3].type_string);
@@ -1898,11 +1874,11 @@ yyreduce:
             (yyval.type_pnode) = constructNode("FunDec", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 4, nodeID, nodeLP, (yyvsp[-1].type_pnode), nodeRP);
         }
-#line 1902 "syntax.tab.c"
+#line 1878 "./syntax.tab.c"
     break;
 
   case 27:
-#line 213 "syntax.y"
+#line 189 "./syntax.y"
                {
             struct Node* nodeID = constructNode("ID", VL, (yylsp[-2]).first_line);
             nodeID->Valstr = (yyvsp[-2].type_string);
@@ -1911,133 +1887,133 @@ yyreduce:
             (yyval.type_pnode) = constructNode("FunDec", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, nodeID, nodeLP, nodeRP);
         }
-#line 1915 "syntax.tab.c"
+#line 1891 "./syntax.tab.c"
     break;
 
   case 28:
-#line 221 "syntax.y"
+#line 197 "./syntax.y"
                   {
             (yyval.type_pnode) = NULL;
         }
-#line 1923 "syntax.tab.c"
+#line 1899 "./syntax.tab.c"
     break;
 
   case 29:
-#line 224 "syntax.y"
+#line 200 "./syntax.y"
                      {
             (yyval.type_pnode) = NULL;
         }
-#line 1931 "syntax.tab.c"
+#line 1907 "./syntax.tab.c"
     break;
 
   case 30:
-#line 228 "syntax.y"
+#line 204 "./syntax.y"
                                  {
             struct Node* nodeCOMMA = constructNode("COMMA", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("VarList", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeCOMMA, (yyvsp[0].type_pnode));
         }
-#line 1941 "syntax.tab.c"
+#line 1917 "./syntax.tab.c"
     break;
 
   case 31:
-#line 233 "syntax.y"
+#line 209 "./syntax.y"
                {
             (yyval.type_pnode) = constructNode("VarList", NTML, (yyloc).first_line);
             (yyval.type_pnode)->firstChild = (yyvsp[0].type_pnode);
         }
-#line 1950 "syntax.tab.c"
+#line 1926 "./syntax.tab.c"
     break;
 
   case 32:
-#line 237 "syntax.y"
+#line 213 "./syntax.y"
                            { (yyval.type_pnode) = NULL;}
-#line 1956 "syntax.tab.c"
+#line 1932 "./syntax.tab.c"
     break;
 
   case 33:
-#line 239 "syntax.y"
+#line 215 "./syntax.y"
                             {
             (yyval.type_pnode) = constructNode("ParamDec", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 2, (yyvsp[-1].type_pnode), (yyvsp[0].type_pnode));
         }
-#line 1965 "syntax.tab.c"
+#line 1941 "./syntax.tab.c"
     break;
 
   case 34:
-#line 243 "syntax.y"
+#line 219 "./syntax.y"
                       { (yyval.type_pnode) = NULL;}
-#line 1971 "syntax.tab.c"
+#line 1947 "./syntax.tab.c"
     break;
 
   case 35:
-#line 247 "syntax.y"
+#line 223 "./syntax.y"
                                 {
             struct Node* nodeLC = constructNode("LC", NVL, (yylsp[-3]).first_line);
             struct Node* nodeRC = constructNode("RC", NVL, (yylsp[0]).first_line);
             (yyval.type_pnode) = constructNode("CompSt", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 4, nodeLC, (yyvsp[-2].type_pnode), (yyvsp[-1].type_pnode), nodeRC);
         }
-#line 1982 "syntax.tab.c"
+#line 1958 "./syntax.tab.c"
     break;
 
   case 36:
-#line 253 "syntax.y"
+#line 229 "./syntax.y"
                {
             (yyval.type_pnode) = NULL;
         }
-#line 1990 "syntax.tab.c"
+#line 1966 "./syntax.tab.c"
     break;
 
   case 37:
-#line 257 "syntax.y"
+#line 233 "./syntax.y"
                          {
             (yyval.type_pnode) = constructNode("StmtList", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 2, (yyvsp[-1].type_pnode), (yyvsp[0].type_pnode));
         }
-#line 1999 "syntax.tab.c"
+#line 1975 "./syntax.tab.c"
     break;
 
   case 38:
-#line 261 "syntax.y"
+#line 237 "./syntax.y"
                   {
             (yyval.type_pnode) = NULL;
         }
-#line 2007 "syntax.tab.c"
+#line 1983 "./syntax.tab.c"
     break;
 
   case 39:
-#line 265 "syntax.y"
+#line 241 "./syntax.y"
                 {
             struct Node* nodeSEMI = constructNode("SEMI", NVL, (yylsp[0]).first_line);
             (yyval.type_pnode) = constructNode("Stmt", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 2, (yyvsp[-1].type_pnode), nodeSEMI);
         }
-#line 2017 "syntax.tab.c"
+#line 1993 "./syntax.tab.c"
     break;
 
   case 40:
-#line 270 "syntax.y"
+#line 246 "./syntax.y"
              {
             (yyval.type_pnode) = constructNode("Stmt", NTML, (yyloc).first_line);
             (yyval.type_pnode)->firstChild = (yyvsp[0].type_pnode);
         }
-#line 2026 "syntax.tab.c"
+#line 2002 "./syntax.tab.c"
     break;
 
   case 41:
-#line 274 "syntax.y"
+#line 250 "./syntax.y"
                       {
             struct Node* nodeRETURN = constructNode("RETURN", NVL, (yylsp[-2]).first_line);
             struct Node* nodeSEMI = constructNode("SEMI", NVL, (yylsp[0]).first_line);
             (yyval.type_pnode) = constructNode("Stmt", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, nodeRETURN, (yyvsp[-1].type_pnode), nodeSEMI);
         }
-#line 2037 "syntax.tab.c"
+#line 2013 "./syntax.tab.c"
     break;
 
   case 42:
-#line 280 "syntax.y"
+#line 256 "./syntax.y"
                                               {
             struct Node* nodeIF = constructNode("IF", NVL, (yylsp[-4]).first_line);
             struct Node* nodeLP = constructNode("LP", NVL, (yylsp[-3]).first_line);
@@ -2045,11 +2021,11 @@ yyreduce:
             (yyval.type_pnode) = constructNode("Stmt", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 5, nodeIF, nodeLP, (yyvsp[-2].type_pnode), nodeRP, (yyvsp[0].type_pnode));
         }
-#line 2049 "syntax.tab.c"
+#line 2025 "./syntax.tab.c"
     break;
 
   case 43:
-#line 287 "syntax.y"
+#line 263 "./syntax.y"
                                   {
             struct Node* nodeIF = constructNode("IF", NVL, (yylsp[-6]).first_line);
             struct Node* nodeLP = constructNode("LP", NVL, (yylsp[-5]).first_line);
@@ -2058,11 +2034,11 @@ yyreduce:
             (yyval.type_pnode) = constructNode("Stmt", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 7, nodeIF, nodeLP, (yyvsp[-4].type_pnode), nodeRP, (yyvsp[-2].type_pnode), nodeELSE, (yyvsp[0].type_pnode));
         }
-#line 2062 "syntax.tab.c"
+#line 2038 "./syntax.tab.c"
     break;
 
   case 44:
-#line 295 "syntax.y"
+#line 271 "./syntax.y"
                            {
             struct Node* nodeWHILE = constructNode("WHILE", NVL, (yylsp[-4]).first_line);
             struct Node* nodeLP = constructNode("LP", NVL, (yylsp[-3]).first_line);
@@ -2070,317 +2046,317 @@ yyreduce:
             (yyval.type_pnode) = constructNode("Stmt", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 5, nodeWHILE, nodeLP, (yyvsp[-2].type_pnode), nodeRP, (yyvsp[0].type_pnode));
         }
-#line 2074 "syntax.tab.c"
+#line 2050 "./syntax.tab.c"
     break;
 
   case 45:
-#line 302 "syntax.y"
+#line 278 "./syntax.y"
                         {
             (yyval.type_pnode) = NULL;
         }
-#line 2082 "syntax.tab.c"
+#line 2058 "./syntax.tab.c"
     break;
 
   case 46:
-#line 305 "syntax.y"
+#line 281 "./syntax.y"
                  {
             (yyval.type_pnode) = NULL;
         }
-#line 2090 "syntax.tab.c"
+#line 2066 "./syntax.tab.c"
     break;
 
   case 47:
-#line 308 "syntax.y"
+#line 284 "./syntax.y"
                                                 {
             (yyval.type_pnode) = NULL;
         }
-#line 2098 "syntax.tab.c"
+#line 2074 "./syntax.tab.c"
     break;
 
   case 48:
-#line 311 "syntax.y"
+#line 287 "./syntax.y"
                                                  {
             (yyval.type_pnode) = NULL;
         }
-#line 2106 "syntax.tab.c"
+#line 2082 "./syntax.tab.c"
     break;
 
   case 49:
-#line 314 "syntax.y"
+#line 290 "./syntax.y"
                                                  {
             (yyval.type_pnode) = NULL;
         }
-#line 2114 "syntax.tab.c"
+#line 2090 "./syntax.tab.c"
     break;
 
   case 50:
-#line 317 "syntax.y"
+#line 293 "./syntax.y"
                                      {
             (yyval.type_pnode) = NULL;
         }
-#line 2122 "syntax.tab.c"
+#line 2098 "./syntax.tab.c"
     break;
 
   case 51:
-#line 320 "syntax.y"
+#line 296 "./syntax.y"
                                     {
             (yyval.type_pnode) = NULL;
         }
-#line 2130 "syntax.tab.c"
+#line 2106 "./syntax.tab.c"
     break;
 
   case 52:
-#line 323 "syntax.y"
+#line 299 "./syntax.y"
                                      {
             (yyval.type_pnode) = NULL;
         }
-#line 2138 "syntax.tab.c"
+#line 2114 "./syntax.tab.c"
     break;
 
   case 53:
-#line 326 "syntax.y"
+#line 302 "./syntax.y"
                                   {
 	    (yyval.type_pnode) = NULL;    
     	}
-#line 2146 "syntax.tab.c"
+#line 2122 "./syntax.tab.c"
     break;
 
   case 54:
-#line 329 "syntax.y"
+#line 305 "./syntax.y"
                               {
             (yyval.type_pnode) = NULL;
         }
-#line 2154 "syntax.tab.c"
+#line 2130 "./syntax.tab.c"
     break;
 
   case 55:
-#line 332 "syntax.y"
+#line 308 "./syntax.y"
                              {
             (yyval.type_pnode) = NULL;
         }
-#line 2162 "syntax.tab.c"
+#line 2138 "./syntax.tab.c"
     break;
 
   case 56:
-#line 335 "syntax.y"
+#line 311 "./syntax.y"
                               {
             (yyval.type_pnode) = NULL;
         }
-#line 2170 "syntax.tab.c"
+#line 2146 "./syntax.tab.c"
     break;
 
   case 57:
-#line 341 "syntax.y"
+#line 317 "./syntax.y"
                       {
             (yyval.type_pnode) = constructNode("DefList", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 2, (yyvsp[-1].type_pnode), (yyvsp[0].type_pnode));
         }
-#line 2179 "syntax.tab.c"
+#line 2155 "./syntax.tab.c"
     break;
 
   case 58:
-#line 345 "syntax.y"
+#line 321 "./syntax.y"
                   {
             (yyval.type_pnode) = NULL;
         }
-#line 2187 "syntax.tab.c"
+#line 2163 "./syntax.tab.c"
     break;
 
   case 59:
-#line 349 "syntax.y"
+#line 325 "./syntax.y"
                              {
             struct Node* nodeSEMI = constructNode("SEMI", NVL, (yylsp[0]).first_line);
             (yyval.type_pnode) = constructNode("Def", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), (yyvsp[-1].type_pnode), nodeSEMI);
         }
-#line 2197 "syntax.tab.c"
+#line 2173 "./syntax.tab.c"
     break;
 
   case 60:
-#line 354 "syntax.y"
+#line 330 "./syntax.y"
                            {
             (yyval.type_pnode) = NULL;
         }
-#line 2205 "syntax.tab.c"
+#line 2181 "./syntax.tab.c"
     break;
 
   case 61:
-#line 357 "syntax.y"
+#line 333 "./syntax.y"
                               { (yyval.type_pnode) = NULL;}
-#line 2211 "syntax.tab.c"
+#line 2187 "./syntax.tab.c"
     break;
 
   case 62:
-#line 359 "syntax.y"
+#line 335 "./syntax.y"
               {
             (yyval.type_pnode) = constructNode("DecList", NTML, (yyloc).first_line);
             (yyval.type_pnode)->firstChild = (yyvsp[0].type_pnode);
         }
-#line 2220 "syntax.tab.c"
+#line 2196 "./syntax.tab.c"
     break;
 
   case 63:
-#line 363 "syntax.y"
+#line 339 "./syntax.y"
                         {
             struct Node* nodeCOMMA = constructNode("COMMA", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("DecList", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeCOMMA, (yyvsp[0].type_pnode));
         }
-#line 2230 "syntax.tab.c"
+#line 2206 "./syntax.tab.c"
     break;
 
   case 64:
-#line 368 "syntax.y"
+#line 344 "./syntax.y"
                         { (yyval.type_pnode) = NULL;}
-#line 2236 "syntax.tab.c"
+#line 2212 "./syntax.tab.c"
     break;
 
   case 65:
-#line 369 "syntax.y"
+#line 345 "./syntax.y"
                 { (yyval.type_pnode) = NULL;}
-#line 2242 "syntax.tab.c"
+#line 2218 "./syntax.tab.c"
     break;
 
   case 66:
-#line 371 "syntax.y"
+#line 347 "./syntax.y"
              {
             (yyval.type_pnode) = constructNode("Dec", NTML, (yyloc).first_line);
             (yyval.type_pnode)->firstChild = (yyvsp[0].type_pnode);
         }
-#line 2251 "syntax.tab.c"
+#line 2227 "./syntax.tab.c"
     break;
 
   case 67:
-#line 375 "syntax.y"
+#line 351 "./syntax.y"
                           {
             struct Node* nodeASSIGNOP = constructNode("ASSIGNOP", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Dec", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeASSIGNOP, (yyvsp[0].type_pnode));
         }
-#line 2261 "syntax.tab.c"
+#line 2237 "./syntax.tab.c"
     break;
 
   case 68:
-#line 380 "syntax.y"
+#line 356 "./syntax.y"
                             {
             (yyval.type_pnode) = NULL;
         }
-#line 2269 "syntax.tab.c"
+#line 2245 "./syntax.tab.c"
     break;
 
   case 69:
-#line 386 "syntax.y"
+#line 362 "./syntax.y"
                        {
             struct Node* nodeASSIGNOP = constructNode("ASSIGNOP", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeASSIGNOP, (yyvsp[0].type_pnode));
         }
-#line 2279 "syntax.tab.c"
+#line 2255 "./syntax.tab.c"
     break;
 
   case 70:
-#line 391 "syntax.y"
+#line 367 "./syntax.y"
                   {
             struct Node* nodeAND = constructNode("AND", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeAND, (yyvsp[0].type_pnode));
         }
-#line 2289 "syntax.tab.c"
+#line 2265 "./syntax.tab.c"
     break;
 
   case 71:
-#line 396 "syntax.y"
+#line 372 "./syntax.y"
                  {
             struct Node* nodeOR = constructNode("OR", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeOR, (yyvsp[0].type_pnode));
         }
-#line 2299 "syntax.tab.c"
+#line 2275 "./syntax.tab.c"
     break;
 
   case 72:
-#line 401 "syntax.y"
+#line 377 "./syntax.y"
                     {
             struct Node* nodeRELOP = constructNode("RELOP", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeRELOP, (yyvsp[0].type_pnode));
         }
-#line 2309 "syntax.tab.c"
+#line 2285 "./syntax.tab.c"
     break;
 
   case 73:
-#line 406 "syntax.y"
+#line 382 "./syntax.y"
                    {
             struct Node* nodePLUS = constructNode("PLUS", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodePLUS, (yyvsp[0].type_pnode));
         }
-#line 2319 "syntax.tab.c"
+#line 2295 "./syntax.tab.c"
     break;
 
   case 74:
-#line 411 "syntax.y"
+#line 387 "./syntax.y"
                     {
             struct Node* nodeMINUS = constructNode("MINUS", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeMINUS, (yyvsp[0].type_pnode));
         }
-#line 2329 "syntax.tab.c"
+#line 2305 "./syntax.tab.c"
     break;
 
   case 75:
-#line 416 "syntax.y"
+#line 392 "./syntax.y"
                    {
             struct Node* nodeSTAR = constructNode("STAR", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeSTAR, (yyvsp[0].type_pnode));
         }
-#line 2339 "syntax.tab.c"
+#line 2315 "./syntax.tab.c"
     break;
 
   case 76:
-#line 421 "syntax.y"
+#line 397 "./syntax.y"
                   {
             struct Node* nodeDIV = constructNode("DIV", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeDIV, (yyvsp[0].type_pnode));
         }
-#line 2349 "syntax.tab.c"
+#line 2325 "./syntax.tab.c"
     break;
 
   case 77:
-#line 426 "syntax.y"
+#line 402 "./syntax.y"
                 {
             struct Node* nodeLP = constructNode("LP", NVL, (yylsp[-2]).first_line);
             struct Node* nodeRP = constructNode("RP", NVL, (yylsp[0]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, nodeLP, (yyvsp[-1].type_pnode), nodeRP);
         }
-#line 2360 "syntax.tab.c"
+#line 2336 "./syntax.tab.c"
     break;
 
   case 78:
-#line 432 "syntax.y"
+#line 408 "./syntax.y"
                 {
             struct Node* nodeMINUS = constructNode("MINUS", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 2, nodeMINUS, (yyvsp[0].type_pnode));
         }
-#line 2370 "syntax.tab.c"
+#line 2346 "./syntax.tab.c"
     break;
 
   case 79:
-#line 437 "syntax.y"
+#line 413 "./syntax.y"
               {
             struct Node* nodeNOT = constructNode("NOT", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 2, nodeNOT, (yyvsp[0].type_pnode));
         }
-#line 2380 "syntax.tab.c"
+#line 2356 "./syntax.tab.c"
     break;
 
   case 80:
-#line 442 "syntax.y"
+#line 418 "./syntax.y"
                     {
             struct Node* nodeID = constructNode("ID", VL, (yylsp[-3]).first_line);
             nodeID->Valstr = (yyvsp[-3].type_string);
@@ -2389,11 +2365,11 @@ yyreduce:
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 4, nodeID, nodeLP, (yyvsp[-1].type_pnode), nodeRP);
         }
-#line 2393 "syntax.tab.c"
+#line 2369 "./syntax.tab.c"
     break;
 
   case 81:
-#line 450 "syntax.y"
+#line 426 "./syntax.y"
                {
             struct Node* nodeID = constructNode("ID", VL, (yylsp[-2]).first_line);
             nodeID->Valstr = (yyvsp[-2].type_string);
@@ -2402,22 +2378,22 @@ yyreduce:
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, nodeID, nodeLP, nodeRP);
         }
-#line 2406 "syntax.tab.c"
+#line 2382 "./syntax.tab.c"
     break;
 
   case 82:
-#line 458 "syntax.y"
+#line 434 "./syntax.y"
                     {
             struct Node* nodeLB = constructNode("LB", NVL, (yylsp[-2]).first_line);
             struct Node* nodeRB = constructNode("RB", NVL, (yylsp[0]).first_line);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 4, (yyvsp[-3].type_pnode), nodeLB, (yyvsp[-1].type_pnode), nodeRB);
         }
-#line 2417 "syntax.tab.c"
+#line 2393 "./syntax.tab.c"
     break;
 
   case 83:
-#line 464 "syntax.y"
+#line 440 "./syntax.y"
                  {
             struct Node* nodeDOT = constructNode("DOT", NVL, (yylsp[-1]).first_line);
             struct Node* nodeID = constructNode("ID", VL, (yylsp[0]).first_line);
@@ -2425,183 +2401,183 @@ yyreduce:
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeDOT, nodeID);
         }
-#line 2429 "syntax.tab.c"
+#line 2405 "./syntax.tab.c"
     break;
 
   case 84:
-#line 471 "syntax.y"
+#line 447 "./syntax.y"
          {
             struct Node* nodeID = constructNode("ID", VL, (yylsp[0]).first_line);
             nodeID->Valstr = (yyvsp[0].type_string);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             (yyval.type_pnode)->firstChild = nodeID;
         }
-#line 2440 "syntax.tab.c"
+#line 2416 "./syntax.tab.c"
     break;
 
   case 85:
-#line 477 "syntax.y"
+#line 453 "./syntax.y"
           {
             struct Node* nodeINT = constructNode("INT", VL, (yylsp[0]).first_line);
             nodeINT->Valint = (yyvsp[0].type_int);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             (yyval.type_pnode)->firstChild = nodeINT;
         }
-#line 2451 "syntax.tab.c"
+#line 2427 "./syntax.tab.c"
     break;
 
   case 86:
-#line 483 "syntax.y"
+#line 459 "./syntax.y"
             {
             struct Node* nodeFLOAT = constructNode("FLOAT", VL, (yylsp[0]).first_line);
             nodeFLOAT->Valfloat = (yyvsp[0].type_float);
             (yyval.type_pnode) = constructNode("Exp", NTML, (yyloc).first_line);
             (yyval.type_pnode)->firstChild = nodeFLOAT;
         }
-#line 2462 "syntax.tab.c"
+#line 2438 "./syntax.tab.c"
     break;
 
   case 87:
-#line 489 "syntax.y"
+#line 465 "./syntax.y"
                       {
             (yyval.type_pnode) = NULL;
         }
-#line 2470 "syntax.tab.c"
+#line 2446 "./syntax.tab.c"
     break;
 
   case 88:
-#line 492 "syntax.y"
+#line 468 "./syntax.y"
                {
             (yyval.type_pnode) = NULL;
         }
-#line 2478 "syntax.tab.c"
+#line 2454 "./syntax.tab.c"
     break;
 
   case 89:
-#line 495 "syntax.y"
+#line 471 "./syntax.y"
                        {
             (yyval.type_pnode) = NULL;
         }
-#line 2486 "syntax.tab.c"
+#line 2462 "./syntax.tab.c"
     break;
 
   case 90:
-#line 498 "syntax.y"
+#line 474 "./syntax.y"
                   {
             (yyval.type_pnode) = NULL;
         }
-#line 2494 "syntax.tab.c"
+#line 2470 "./syntax.tab.c"
     break;
 
   case 91:
-#line 501 "syntax.y"
+#line 477 "./syntax.y"
                          {
             (yyval.type_pnode) = NULL;
         }
-#line 2502 "syntax.tab.c"
+#line 2478 "./syntax.tab.c"
     break;
 
   case 92:
-#line 504 "syntax.y"
+#line 480 "./syntax.y"
                     {
             (yyval.type_pnode) = NULL;
         }
-#line 2510 "syntax.tab.c"
+#line 2486 "./syntax.tab.c"
     break;
 
   case 93:
-#line 507 "syntax.y"
+#line 483 "./syntax.y"
                    {
             (yyval.type_pnode) = NULL;
         }
-#line 2518 "syntax.tab.c"
+#line 2494 "./syntax.tab.c"
     break;
 
   case 94:
-#line 510 "syntax.y"
+#line 486 "./syntax.y"
                       {
             (yyval.type_pnode) = NULL;
         }
-#line 2526 "syntax.tab.c"
+#line 2502 "./syntax.tab.c"
     break;
 
   case 95:
-#line 513 "syntax.y"
+#line 489 "./syntax.y"
                      {
             (yyval.type_pnode) = NULL;
         }
-#line 2534 "syntax.tab.c"
+#line 2510 "./syntax.tab.c"
     break;
 
   case 96:
-#line 516 "syntax.y"
+#line 492 "./syntax.y"
                       {
             (yyval.type_pnode) = NULL;
         }
-#line 2542 "syntax.tab.c"
+#line 2518 "./syntax.tab.c"
     break;
 
   case 97:
-#line 519 "syntax.y"
+#line 495 "./syntax.y"
                      {
             (yyval.type_pnode) = NULL;
         }
-#line 2550 "syntax.tab.c"
+#line 2526 "./syntax.tab.c"
     break;
 
   case 98:
-#line 522 "syntax.y"
+#line 498 "./syntax.y"
                     {
             (yyval.type_pnode) = NULL;
         }
-#line 2558 "syntax.tab.c"
+#line 2534 "./syntax.tab.c"
     break;
 
   case 99:
-#line 525 "syntax.y"
+#line 501 "./syntax.y"
                   {
             (yyval.type_pnode) = NULL;
         }
-#line 2566 "syntax.tab.c"
+#line 2542 "./syntax.tab.c"
     break;
 
   case 100:
-#line 528 "syntax.y"
+#line 504 "./syntax.y"
                 {
             (yyval.type_pnode) = NULL;
         }
-#line 2574 "syntax.tab.c"
+#line 2550 "./syntax.tab.c"
     break;
 
   case 101:
-#line 531 "syntax.y"
+#line 507 "./syntax.y"
                    {
             (yyval.type_pnode) = NULL;
         }
-#line 2582 "syntax.tab.c"
+#line 2558 "./syntax.tab.c"
     break;
 
   case 102:
-#line 535 "syntax.y"
+#line 511 "./syntax.y"
                       {
             struct Node* nodeCOMMA = constructNode("COMMA", NVL, (yylsp[-1]).first_line);
             (yyval.type_pnode) = constructNode("Args", NTML, (yyloc).first_line);
             construct((yyval.type_pnode), 3, (yyvsp[-2].type_pnode), nodeCOMMA, (yyvsp[0].type_pnode));
         }
-#line 2592 "syntax.tab.c"
+#line 2568 "./syntax.tab.c"
     break;
 
   case 103:
-#line 540 "syntax.y"
+#line 516 "./syntax.y"
           {
             (yyval.type_pnode) = constructNode("Args", NTML, (yyloc).first_line);
             (yyval.type_pnode)->firstChild = (yyvsp[0].type_pnode);
         }
-#line 2601 "syntax.tab.c"
+#line 2577 "./syntax.tab.c"
     break;
 
 
-#line 2605 "syntax.tab.c"
+#line 2581 "./syntax.tab.c"
 
       default: break;
     }
@@ -2839,72 +2815,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 546 "syntax.y"
-
-struct Node* constructNode(char* nodeName, enum NodeType nodeType, int lineNum) {
-    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-    newNode->nodeName = nodeName;
-    newNode->nodeType = nodeType;
-    newNode->lineNum = lineNum;
-    newNode->firstChild = NULL;
-    newNode->bro = NULL;
-    return newNode;
-}
-
-void construct(struct Node* fatherNode, int index, ...) {
-    va_list valist;
-    va_start(valist, index);
-    struct Node* firstChild = NULL;
-    struct Node* lastChild = NULL;
-    for (int i = 0; i < index; i++) {
-        struct Node* nowNode = va_arg(valist, struct Node*);
-        if (firstChild == NULL) {
-            if (nowNode != NULL) {
-                firstChild = nowNode;
-                lastChild = firstChild;
-            }
-        } else {
-            if (nowNode != NULL) {
-                lastChild->bro = nowNode;
-                lastChild = nowNode;
-            }
-        }
-    }
-    va_end(valist);
-    fatherNode->firstChild = firstChild;
-}
-
-void Print_Tree(struct Node* rootNode, int SpaceNum) {
-    if (rootNode == NULL)
-        return;
-    for (int i = 0; i < SpaceNum; i++) {
-        printf(" ");
-    }
-    switch (rootNode->nodeType) {
-        case NTML:
-            printf("%s (%d)\n", rootNode->nodeName, rootNode->lineNum);
-            break;
-        case NVL:
-            printf("%s\n", rootNode->nodeName);
-            break;
-        case VL:
-            printf("%s: ", rootNode->nodeName);
-            if ((strcmp(rootNode->nodeName, "TYPE") == 0) || (strcmp(rootNode->nodeName, "ID") == 0)) {
-                printf("%s\n", rootNode->Valstr);
-            } else if (strcmp(rootNode->nodeName, "INT") == 0) {
-                printf("%d\n", rootNode->Valint);
-            } else if (strcmp(rootNode->nodeName, "FLOAT") == 0) {
-                printf("%f\n", rootNode->Valfloat);
-            } else {
-                printf("ERROR!\n");
-            }
-            break;
-        default:
-            printf("ERROR!\n");
-    }
-    Print_Tree(rootNode->firstChild, SpaceNum + 2);
-    Print_Tree(rootNode->bro, SpaceNum);
-}
+#line 522 "./syntax.y"
 
 
 void yyerror(const char* s) {
@@ -2914,34 +2825,3 @@ void yyerror(const char* s) {
 	}
 }
 
-void printError(char errorType, int lineno, char* msg) {
-    fprintf(stderr, "Error type %c at Line %d: %s.\n", errorType, lineno, msg);
-}
-
-int isNewError(int errorLineno) {
-    if (lastErrorLineno != errorLineno) {
-        errorflag = 1;
-        lastErrorLineno = errorLineno;
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-void destroyTree(struct Node* rootNode) {
-    if (rootNode == NULL) {
-        return;
-    }
-    while (rootNode->firstChild != NULL) {
-        struct Node* nowNode = rootNode->firstChild;
-        rootNode->firstChild = nowNode->bro;
-        destroyTree(nowNode);
-    }
-    if ((strcmp(rootNode->nodeName, "TYPE") == 0) || (strcmp(rootNode->nodeName, "ID") == 0)) {
-        free(rootNode->Valstr);
-        rootNode->Valstr = NULL;
-    }
-    return;
-    free(rootNode);
-    rootNode = NULL;
-}

@@ -8,7 +8,7 @@ extern int errorflag;
 extern struct Node* Root;
 extern void Print_Tree(struct Node* rootNode,int SpaceNum);
 extern void destroyTree(struct Node* rootNode);
-
+extern void semantic_check_start(struct Node* rootNode);
 int main(int argc, char** argv) {
     if (argc <= 1) 
         return 1;
@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     // yydebug = 1;
     yyparse();
     if (errorflag == 0) {
-        Print_Tree(Root,0);
+        semantic_check_start(Root);
     }
     destroyTree(Root);
     return 0;

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-
+#include "hash.h"
+#include <stdlib.h>
 
 //初始化Hash表
 void initHashTable(){
@@ -31,7 +32,7 @@ HashNode CreateNewNode(char *name, Type type){
 //符号表的插入操作
 int insert(char *name,Type type){
 	if(find(name)){
-		printf("Error!The symbol has already exist.\n")
+		printf("Error!The symbol has already exist.\n");
 		return 0;
 	}
 	int HashNum = time33_hash(name);

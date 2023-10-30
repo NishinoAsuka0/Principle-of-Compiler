@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "hash.h"
-
+#include <stdbool.h>
+#include "syntaxTree.h"
 
 bool equal_string(char*a1, char*a2);
 //类型一致性
@@ -25,8 +26,13 @@ Type StructSpecifier(struct Node* node);
 Type analyseType(struct Node*node);
 void StmtList(struct Node*node, Type ntype);
 FieldList VarList(struct Node* node, Type ntype);
-void DefList(struct Node*node, int num);
-void Def(struct Node*node);
-void DecList(struct Node*node, Type ntype);
-void Dec(struct Node*node, Type ntype);
-
+void DefList(struct Node*node, int ifstruct);
+void Def(struct Node*node, int ifstruct);
+void DecList(struct Node*node, Type ntype, int ifstruct);
+void Dec(struct Node*node, Type ntype, int ifstruct);
+FieldList ParamDec(struct Node*node);
+FieldList VarDec(struct Node*node, Type ntype, int ifstruct);
+Type Exp(struct Node*node);
+bool findFunc(Function func);
+Type Struct_Type_get(Type structType, char* name);
+Type Type_get(struct Node*node);

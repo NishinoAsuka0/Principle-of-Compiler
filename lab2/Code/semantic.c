@@ -243,7 +243,7 @@ void DefList(struct Node*node, int ifstruct){
         //判断节点是否为空
         if(node == NULL)
                 return;
-	Def(node->firstChild. ifstruct);
+	Def(node->firstChild, ifstruct);
 	DefList(node->firstChild->bro, ifstruct);
 }
 void Def(struct Node*node, int ifstruct){
@@ -268,7 +268,7 @@ FieldList DecList(struct Node*node, Type ntype,int ifstruct){
         }
         //判断节点是否为空
         if(node == NULL)
-                return;
+                return NULL;
 	if(Use_This_Rule(node, 1, "Dec")){
 		if(DEBUG_FLAG)	printf("DecList := Dec\n");
 		FieldList newField;
@@ -295,7 +295,7 @@ FieldList Dec(struct Node*node, Type ntype, int ifstruct){
         }
         //判断节点是否为空
         if(node == NULL)
-                return;
+                return NULL;
         if(Use_This_Rule(node, 1, "VarDec")){
                 if(DEBUG_FLAG)  printf("Dec := VarDec\n");
                 return VarDec(node->firstChild, ntype, ifstruct);
@@ -371,7 +371,7 @@ Type StructSpecifier(struct Node* node){
         }
         //判断节点是否为空
         if(node == NULL)
-                return;
+                return NULL;
 	//是结构体定义且名字存在
 	if(Use_This_Rule(node, 5, "STRUCT", "OptTag", "LC", "DefList", "RC")){
 		if(DEBUG_FLAG)	printf("StructSpecifier := STRUCT OptTag LC DefList RC\n");
@@ -389,7 +389,7 @@ Type StructSpecifier(struct Node* node){
 		}
 		DefList(node->firstChild->bro->bro->bro, 1);
 		if(canInsert){
-			if(DEBUF_FLAG)	printf("insert struct and the name is %s\n", nodename);
+			if(DEBUG_FLAG)	printf("insert struct and the name is %s\n", nodename);
 			insert(nodename, structType);
 		}
 		return structType;
@@ -405,7 +405,7 @@ Type StructSpecifier(struct Node* node){
                 bool canInsert = true;
                 DefList(node->firstChild->bro->bro->bro, 1);
                 if(canInsert){
-                        if(DEBUF_FLAG)  printf("insert struct and the name is %s\n", nodename);
+                        if(DEBUG_FLAG)  printf("insert struct and the name is %s\n", nodename);
                         insert(nodename, structType);
                 }
                 return structType;
@@ -431,11 +431,11 @@ Function FunDec(struct Node*node, Type ntype){
         }
         //判断节点是否为空
         if(node == NULL)
-                return;
+                return NULL;
 	Function newfunc = (Function)malloc(sizeof(struct Function_));
 	struct Node* child = node->firstChild;
 	newfunc->name = child->Valstr;
-	newfunc->line = child->lineNum;
+	newfunc->linenum = child->lineNum;
 	newfunc->type = ntype;
 	//错误类型4
 	if(findFunc(newfunc) != 0){
@@ -462,7 +462,7 @@ FieldList VarList(struct Node* node, Type ntype){
         }
         //判断节点是否为空
         if(node == NULL)
-                return;
+                return NULL;
 	if(Use_This_Rule(node, 3, "ParamDec", "COMMA", "VarList")){
 		if(DEBUG_FLAG)	printf("VarList := ParamDec COMMA VarList\n");
 		FieldList newField = ParamDec(node->firstChild);
@@ -488,7 +488,7 @@ FieldList ParamDec(struct Node*node){
         }
         //判断节点是否为空
         if(node == NULL)
-                return;
+                return NULL;
 	if(Use_This_Rule(node, 2, "Specifier", "VarDec")){
 		if(DEBUG_FLAG)	printf("ParamDec := Specifier VarDec\n");
 		FieldList newField;
@@ -516,7 +516,7 @@ FieldList VarDec(struct Node*node, Type ntype, int ifstruct){
         }
         //判断节点是否为空
         if(node == NULL)
-                return;
+                return NULL;
 	if(Use_This_Rule(node, 1, "ID")){
 		if(DEBUG_FLAG)	printf("VarDec := ID\n");
 		FieldList newField = (FieldList)malloc(sizeof(struct FieldList_));
@@ -540,9 +540,9 @@ FieldList VarDec(struct Node*node, Type ntype, int ifstruct){
 		if(DEBUG_FLAG)	printf("VarDec := VarDec LB INT RB\n");
 		Type newArrayType = (Type)malloc(sizeof(struct Type_));
 		newArrayType->kind = ARRAY;
-		newArrayType->array.type = ntype;
-		newArrayType->array.size = node->firstChild->bro->bro->Valint;
-		return VarDec(node->firstChild, newArrayType);
+		newArrayType->inform.array.type = ntype;
+		newArrayType->inform.array.size = node->firstChild->bro->bro->Valint;
+		return VarDec(node->firstChild, newArrayType, 0);
 	}
 	else{
                 printf("Error!No this analyse!\n");
@@ -551,6 +551,12 @@ FieldList VarDec(struct Node*node, Type ntype, int ifstruct){
 
 }
 Type Exp(struct Node*node){
+	if(DEBUG_FLAG){
+                printf("Go in Exp analyse\n");
+        }
+        //判断节点是否为空
+        if(node == NULL)
+                return NULL;
 	struct Node*Children = node->firstChild;
 	if(equal_string(Children->nodeName, "ID")){
 		//错误类型1
@@ -699,7 +705,7 @@ Type Type_get(struct Node*node){
 		int HashNum = time33_hash(node->Valstr);
 		HashNode curNode = gTable[HashNum];
 		while(curNode != NULL){
-			if(strcmp(curNode->name, name) == 0){
+			if(strcmp(curNode->name, node->Valstr) == 0){
 				return curNode->type;
 			}
 			curNode = curNode->next;
@@ -711,7 +717,7 @@ bool findFunc(Function func){
 	int HashNum = time33_hash(func->name);
 	HashNode curNode = gTable[HashNum];
 	while(curNode != NULL){
-		if(strcmp(curNode->name, name) == 0){
+		if(strcmp(curNode->name, func->name) == 0){
 			return true;
 		}
 		curNode = curNode->next;
@@ -727,4 +733,28 @@ Type Struct_Type_get(Type structType, char* name){
 		nowField = nowField->next;
 	}
 	return NULL;
+}
+FieldList Args(struct Node* node){
+	if(DEBUG_FLAG){
+                printf("Go in Args analyse\n");
+        }
+        //判断节点是否为空
+        if(node == NULL)
+                return NULL;
+	if(Use_This_Rule(node, 3, "Exp", "COMMA", "Args")){
+		FieldList newField = (FieldList)malloc(sizeof(struct FieldList_));
+		newField->type = Exp(node->firstChild);
+		newField->next = Args(node->firstChild->bro->bro);
+		return newField;
+	}
+	else if(Use_This_Rule(node, 1, "Exp")){
+		FieldList newField = (FieldList)malloc(sizeof(struct FieldList_));
+                newField->type = Exp(node->firstChild);
+                newField->next = Args(node->firstChild->bro->bro);
+                return newField;
+	}
+	else{
+		printf("Error!No this analyse!\n");
+                return NULL;
+	}
 }

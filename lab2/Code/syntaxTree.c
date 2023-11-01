@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//int errorflag = 0;
+//int lastErrorLineno = 0;
+//struct Node* Root = NULL;
+
 struct Node* constructNode(char* nodeName, enum NodeType nodeType, int lineNum) {
     struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
     newNode->nodeName = nodeName;
@@ -68,7 +72,7 @@ void Print_Tree(struct Node* rootNode, int SpaceNum) {
 }
 
 
-void printError(char errorType, int lineno, char* msg) {
+/*void printError(char errorType, int lineno, char* msg) {
     fprintf(stderr, "Error type %c at Line %d: %s.\n", errorType, lineno, msg);
 }
 
@@ -81,7 +85,7 @@ int isNewError(int errorLineno) {
         return 0;
     }
 }
-
+*/
 void destroyTree(struct Node* rootNode) {
     if (rootNode == NULL) {
         return;

@@ -1,6 +1,9 @@
+#ifndef _HASH_
+#define _HASH_
+
 #include <string.h>
 #include <stdio.h>
-#include "syntax.tab.h"
+
 
 #define DEBUG_FLAG 0
 
@@ -77,3 +80,5 @@ int insert(char *name,Type type);
 int find(char *name);
 HashNode CreateNewNode(char *name, Type type);
 
+
+#endif

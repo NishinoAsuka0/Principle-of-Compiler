@@ -1,3 +1,6 @@
+#ifndef _SEMANTIC_
+#define _SEMANTIC_
+
 #include <stdio.h>
 #include <string.h>
 #include "hash.h"
@@ -37,3 +40,5 @@ bool findFunc(Function func);
 Type Struct_Type_get(Type structType, char* name);
 Type Type_get(struct Node*node);
 FieldList Args(struct Node*node);
+
+#endif

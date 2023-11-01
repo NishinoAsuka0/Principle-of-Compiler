@@ -1,12 +1,23 @@
 %locations
 %{
-    #include <stdio.h>
-    #include <string.h>
-    #include <stdarg.h>
-    #include "lex.yy.c"
-    #include "syntaxTree.h"
+    	#include <stdio.h>
+    	#include <string.h>
+   	#include <stdarg.h>
+    	#include "lex.yy.c"
+    	#include "syntaxTree.h"
 
-    void yyerror(const char* s);
+    	void yyerror(const char* s);
+    	
+	int errorflag = 0;
+	int lastErrorLineno = 0;
+	struct Node* Root = NULL;
+	
+	
+	//对Error的打印
+	void printError(char errorType, int lineno, char* msg);
+	int isNewError(int errorLineno);
+
+
 
 
 %}
@@ -526,5 +537,20 @@ void yyerror(const char* s) {
 		fprintf(stdout, "Error type B at Line %d: %s.\n", yylineno, yytext);
 		errorflag = 1;
 	}
+}
+
+
+void printError(char errorType, int lineno, char* msg) {
+    fprintf(stderr, "Error type %c at Line %d: %s.\n", errorType, lineno, msg);
+}
+
+int isNewError(int errorLineno) {
+    if (lastErrorLineno != errorLineno) {
+        errorflag = 1;
+        lastErrorLineno = errorLineno;
+        return 1;
+    } else {
+        return 0;
+    }
 }
 

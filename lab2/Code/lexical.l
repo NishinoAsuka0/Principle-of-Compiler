@@ -8,7 +8,7 @@
 	    yylloc.last_column = yycolumn + yyleng - 1; \
 	    yycolumn += yyleng;
     
-    extern void printError(char errorType, int lineno, char* msg);
+    extern void printError(char *errorType, int lineno, char* msg);
     extern int isNewError(int errorLineno);
 %}
 /* 对于ID，先不设置其必须为下划线或者字母开头，识别出来后再去判断 */
@@ -127,7 +127,7 @@ SEMI	";"
                     	unput(c);
                 } else if (c == EOF) {
                     if (isNewError(yylineno)) {
-                        printError('B', yylineno, "Unmatched \"/*\"");
+                        printError("B", yylineno, "Unmatched \"/*\"");
                     }
                     break;
                 }
@@ -136,7 +136,7 @@ SEMI	";"
         }
 "*/"    {
             if (isNewError(yylineno)) {
-                printError('B', yylineno, "Unmatched \"*/\"");
+                printError("B", yylineno, "Unmatched \"*/\"");
             }
         }
 

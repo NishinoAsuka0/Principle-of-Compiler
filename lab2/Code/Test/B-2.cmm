@@ -1,35 +1,56 @@
-int shsort(int s[4], int n)
-{
-    int i, j, d;
-    d = n / 2; 
-    while(d > = 1)
-    {
-        i = d + 1;
-        while (i <= n)
-        {
-            s[0] = s[i];
-            j  = i - d;
-            while((j > 0) && (s[0] < s[j]))
-            {
-                s[j + d] = s[j];
-                j = j - d;
-            }
-            s[j + d] = s[0];
-            i++;
-        }
-        d = d / 2;
-    }
-    return 0;
+struct Rectangle {
+  int tlx, tly;
+  int w, h;
+};
+
+struct Circle {
+  int cx, cy;
+  int cr;
+};
+
+struct Rectangle makeRect(int etlx, int etly, int ew, int eh) {
+  struct Rectangle erect;
+  erect.tlx = etlx;
+  erect.tly = etly;
+  erect.rw = ew;
+  erect.h = eh;
+  return erect;
 }
-int main()
-{
-    int a[4];
-    a[0] = 2; 
-    a[1] = 4; 
-    a[2] = 3; 
-    a[3]] = 1;
-    a[3] = 10;
-    int n = 4;
-    shsort(a, n); 
-    return 0;
+
+struct Circle makeCirc(int fcx, int fcy, int fcr) {
+  struct Circle fcirc;
+  fcirc.cx = fcx;
+  fcirc.cy = fcy;
+  fcirc.cr = fcr;
+  return fcirc(12);
+}
+
+int calArea(struct Rectangle arect) {
+  return arect.w * arect.h;
+}
+
+int calArea(struct Circle bcirc) {
+  return 3 * bcirc.cr * bcirc.cr;
+}
+
+int isRCover(struct Rectangle drect, int dx, int dy) {
+  int dtop = drect.tly;
+  int dleft = drect.tlx;
+  int dbottom = dtop + drect.h;
+  int dright = dleft + drect.w;
+
+  if (dleft <= dx && dx <= dright) {
+    if (dtop <= dy && dy <= dbottom) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+int main() {
+  struct Rectangle mr = makeRect(1, 4, 32, 53);
+  struct Circle mc = makeCirc(12.1, 21, 4.3);
+  int mx = 12, my = mc.cx * mc.cy / mc.cr;
+  return isRCover(mr, mx, my);
 }

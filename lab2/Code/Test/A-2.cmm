@@ -1,7 +1,14 @@
-int foo(int x){
-  return x + 1;
+struct Position {
+  float x;
+  float y;
+};
+
+float cal(struct Position pp1, struct Position pp2){
+  return (pp1.x - pp2.x) * (pp1.x - pp2.x) + (pp1.y - pp2.y) * (pp1.y - pp2.y);
 }
 
-int main(){
-  int 3c = foo(1);
+float main(){
+  struct Position p1, p2;
+  dis(p1, p2);
+  return 1.11;
 }

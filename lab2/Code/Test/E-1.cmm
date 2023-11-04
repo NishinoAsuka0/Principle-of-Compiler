@@ -10,6 +10,8 @@ struct Permutation{
 	int p_answer;
 };
 
+int factorial(int n);
+
 int factorial(int n){
 	int f_sum = 1;
 	int index = n;
@@ -36,6 +38,9 @@ int calculation_permutation(struct Permutation per){
 	return cp_sum;
 }
 
+int calculation_combination(struct Combination com);
+
+
 int main(){
 	struct Combination com1;
 	struct Permutation per1;
@@ -45,3 +50,9 @@ int main(){
 	per1.p_answer = calculation_permutation(per1);
 	return 0;
 }
+
+int calculation_permutation(struct Permutation per);
+
+int calculation(struct Combination com, struct Permutation per);
+
+int calculation_combination(struct Permutation per);

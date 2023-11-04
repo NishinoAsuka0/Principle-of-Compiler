@@ -31,7 +31,7 @@ HashNode CreateNewNode(char *name, Type type){
 
 //符号表的插入操作
 int insert(char *name,Type type){
-	if(find(name)){
+	if(find(name) && DEBUG_FLAG){
 		printf("Error!The symbol has already exist.\n");
 		return 0;
 	}
@@ -60,6 +60,7 @@ int insert(char *name,Type type){
 //符号表的查找操作
 int find(char *name){
 	int HashNum = time33_hash(name);
+	//printf("HashNum is %d", HashNum);
 	HashNode curNode = gTable[HashNum];
 	while(curNode != NULL){
 		if(strcmp(curNode->name, name) == 0){

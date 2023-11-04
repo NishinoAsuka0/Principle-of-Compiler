@@ -1,44 +1,36 @@
-int MergeSort(int arr[100], int tmp[100], int start, int end)
-{
-    int mid;
-    if (start < end)
-    {
-        mid = (start + end) / 2;    
-        MergeSort(arr, tmp, start, mid);
-        MergeSort(arr, tmp, mid + 1, end);
-        Merge(arr, tmp, start, mid, end);
-    }
+struct ArithmeticalSequence{
+  int as_a0;
+  int as_d;
+  int as_num;
+};
+
+struct GeometricSequence{
+  int gs_a0;
+  int gs_q;
+  int gs_num;
+};
+
+
+int arithmeticalSequenceSum(struct ArithmeticalSequence as){
+  int as_last = as.as_a0 + (as.as_num - 1) * as.as_d;
+  return (as.as_a0 + as_last) * as.as_num / 2;
 }
 
-int Merge(int arr[100], int tmp[100], int start, int mid, int end)
-{
-    int i = start, j = mid + 1, k = start;
-    while (i != mid + 1 && j != end + 1)
-    {
-        if (arr[i] >= arr[j]){
-            tmp[k] = arr[j];
-            k = k + 1;
-            j = j + 1;
-        }
-        else{
-            tmp[k] = arr[i];
-            k = k + 1;
-            i = i + 1;
-        }
-    }
-    while (i != mid + 1){
-        tmp[k] = arr[i];
-        k = k + 1;
-        i = i + 1;
-    }
-    while (j != end + 1){
-        tmp[k] = arr[j];
-        k = k + 1;
-        j = j + 1;
-    }
-    i = start;
-    while(i <= end){
-        arr[i] = tmp[i];
-        i = i + 1;
-    }
+int geometricSequenceSum(struct GeometricSequence gs){
+  int gs_sum = gs.gs_a0;
+  int gs_temp = gs.gs_a0;
+  int gs_index = 1;
+  while(gs_index < gs.gs_num){
+    gs_index = gs_index + 1;
+    gs_temp = gs_temp * gs.gs_q;
+    gs_sum = gs_sum + gs_temp;
+  }
+  return gs_sum;
+}
+
+int main(){
+  struct ArithmeticalSequence as1;
+  struct GeometricSequence gs1;
+  int sum = arithmeticalSequenceSum(as1) + geometricSequenceSum(gs1);
+  return sum;
 }

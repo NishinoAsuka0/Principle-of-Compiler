@@ -39,9 +39,7 @@ void Print_Tree(struct Node* rootNode,int SpaceNum);
     
 void destroyTree(struct Node* rootNode);
     
-    
 //对Error的打印
-void printError(char errorType, int lineno, char* msg);
-int isNewError(int errorLineno);
-
+	void printError(char* errorType, int lineno, char* msg);
+	int isNewError(int errorLineno);
 #endif

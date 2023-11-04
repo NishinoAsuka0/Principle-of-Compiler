@@ -1,32 +1,28 @@
-int foo(int arr[10], int y, struct player p){
-  int a,b,c;
-  struct st{
-    int _i, _j, _k;
-    float 2g;
-    int _l;
-  };
-  int an = 100;
-  struct st t1;
+struct Rectangle{
+  float r_length = 100.0;
+  float r_width;
+};
 
-  while(a <= 100);
-  
-  if(a > c){
-    return t2._i + t2._j;
-  }
-  else{
-    b = t1._i + an;
-  }
+struct Triangle{
+  float t_height;
+  float t_width;
+};
 
-  return 10;
+float area_rec(struct Rectangle rec){
+  return rec.r_length * rec.r_width;
 }
 
-int bar(float h1, float h2, float h3){
-  int list[100.0];
-  struct st{
-    float hhh;
-    float ttt;
-    float ppp;
-  } t;
+int area_tri(struct Triangle tri1){
+  return tri1.t_height * tri1.t_width;
+}
 
-  list[1] = t.hhh;
+float area_tri(struct Triangle tri2){
+  return tri2.t_height * tri2.t_width;
+}
+
+int main(){
+  struct Rectangle rectangles[100];
+  struct Triangle triangles[50];
+  float area;
+  area_rec(rectangles[0]) = area;
 }

@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include "syntaxTree.h"
 
+
 bool equal_string(char*a1, char*a2);
 //类型一致性
 bool equal_Type(Type T1, Type T2);
@@ -24,21 +25,22 @@ void CompSt(struct Node *node, Type ntype);
 void Stmt(struct Node *node, Type ntype);
 Type Specifier(struct Node*node);
 void ExtDecList(struct Node*node,Type ntype);
-Function FunDec(struct Node*node, Type ntype);
+Function FunDec(struct Node*node, Type ntype, int state);
 Type StructSpecifier(struct Node* node);
 Type analyseType(struct Node*node);
 void StmtList(struct Node*node, Type ntype);
-FieldList VarList(struct Node* node, Type ntype);
-void DefList(struct Node*node, int ifstruct);
-void Def(struct Node*node, int ifstruct);
+FieldList VarList(struct Node* node, Type ntype, int state);
+FieldList DefList(struct Node*node, int ifstruct);
+FieldList Def(struct Node*node, int ifstruct);
 FieldList DecList(struct Node*node, Type ntype, int ifstruct);
 FieldList Dec(struct Node*node, Type ntype, int ifstruct);
-FieldList ParamDec(struct Node*node);
-FieldList VarDec(struct Node*node, Type ntype, int ifstruct);
+FieldList ParamDec(struct Node*node, int state);
+FieldList VarDec(struct Node*node, Type ntype, int ifstruct, int state);
 Type Exp(struct Node*node);
 bool findFunc(Function func);
 Type Struct_Type_get(Type structType, char* name);
 Type Type_get(struct Node*node);
 FieldList Args(struct Node*node);
-
+void checkFunc();
+void Update(char * name);
 #endif

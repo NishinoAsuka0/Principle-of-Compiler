@@ -14,7 +14,7 @@
 	
 	
 	//对Error的打印
-	void printError(char errorType, int lineno, char* msg);
+	void printError(char* errorType, int lineno, char* msg);
 	int isNewError(int errorLineno);
 
 
@@ -100,6 +100,11 @@ ExtDef : Specifier ExtDecList SEMI {
     | Specifier FunDec CompSt {
             $$ = constructNode("ExtDef", NTML, @$.first_line);
             construct($$, 3, $1, $2, $3);
+        }
+    | Specifier FunDec SEMI {
+            $$ = constructNode("ExtDef", NTML, @$.first_line);
+            struct Node* nodeSEMI = constructNode("SEMI", NVL, @2.first_line);
+            construct($$, 3, $1, $2, nodeSEMI);
         }
     | Specifier error {
             $$ = NULL;
@@ -540,8 +545,11 @@ void yyerror(const char* s) {
 }
 
 
-void printError(char errorType, int lineno, char* msg) {
-    fprintf(stderr, "Error type %c at Line %d: %s.\n", errorType, lineno, msg);
+void printError(char* errorType, int lineno, char* msg) {
+    if(isNewError(lineno)){
+		fprintf(stderr, "Error type %s at Line %d: %s.\n", errorType, lineno, msg);
+		errorflag = 1;
+    }
 }
 
 int isNewError(int errorLineno) {

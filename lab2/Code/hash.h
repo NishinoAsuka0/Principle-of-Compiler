@@ -6,8 +6,6 @@
 
 
 #define DEBUG_FLAG 0
-
-
 typedef struct Type_* Type;
 typedef struct FieldList_* FieldList;
 typedef struct Structure_* Structure;
@@ -64,6 +62,7 @@ struct Function_{
 	char*name;	//名称
 	int linenum;	//行号
 	Type type;	//返回值类型
+	int state;	//是否定义，0为声明，1为定义
 	FieldList next;	// 下一个域
 };
 
@@ -79,6 +78,5 @@ unsigned int time33_hash(char*name);
 int insert(char *name,Type type);
 int find(char *name);
 HashNode CreateNewNode(char *name, Type type);
-
 
 #endif

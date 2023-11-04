@@ -1,4 +1,17 @@
-int main () {
-  int a = 1;
-  int b = a@2;
+struct Person {
+  float height;
+  float weight;
+  int id;
+}; 
+
+int main(){
+  struct Person person;
+  int a,b,c,d;
+  float e,f,g,h;
+  float hei = 170.0;
+  float wei = 75.0;
+  person.height = hei;
+  person.weight = wei;
+  person.id = p;
+  return 0;
 }

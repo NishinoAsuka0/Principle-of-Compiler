@@ -660,7 +660,7 @@ CodeList Translate_DefList(struct Node* node){
 
 CodeList Translate_Def(struct Node* node){
 	if(LAB3_DEBUG){
-                printf("Go in DefList translate\n");
+                printf("Go in Def translate\n");
         }
         //判断节点是否为空
         if(node == NULL)
@@ -677,7 +677,7 @@ CodeList Translate_Def(struct Node* node){
 
 CodeList Translate_DecList(struct Node*node){
 	if(LAB3_DEBUG){
-                printf("Go in DefList translate\n");
+                printf("Go in DecList translate\n");
         }
         //判断节点是否为空
         if(node == NULL)
@@ -698,7 +698,7 @@ CodeList Translate_DecList(struct Node*node){
 
 CodeList Translate_Dec(struct Node*node){
 	if(LAB3_DEBUG){
-                printf("Go in DefList translate\n");
+                printf("Go in Dec translate\n");
         }
         //判断节点是否为空
         if(node == NULL)
@@ -715,7 +715,7 @@ CodeList Translate_Dec(struct Node*node){
 		IRCode ircode = CreateIRCode(IR_ASSIGN);
 		ircode->inform.assign.left = VarDec;
 		ircode->inform.assign.right = Temp;
-		return CreateNewCodeList(ircode);
+		return Merge_CodeList(Exp, CreateNewCodeList(ircode));
 	}
 	else{
                 printf("Error!No This analyse!\n");
@@ -723,4 +723,32 @@ CodeList Translate_Dec(struct Node*node){
         }
 }
 
-Operand Translate_VarDec(struct Node*node);
+Operand Translate_VarDec(struct Node*node){
+	if(LAB3_DEBUG){
+                printf("Go in Dec translate\n");
+        }
+        //判断节点是否为空
+        if(node == NULL)
+                return NULL;
+	if(Use_This_Rule(node, 1, "ID")){
+		if(LAB3_DEBUG)	printf("VarDec := ID\n");
+		Operand op = FindVar(node->firstChild->Valstr);
+		return op;
+	}
+	else if(Use_This_Rule(node, 4, "VarDec", "LB", "INT", "RB")){
+		if(LAB3_DEBUG)	printf("VarDec := VarDec LB INT RB\n");
+		Type array;
+		struct Node* curNode = node;
+		while(!equal_string(curNode->firstChild->nodeName, "ID")){
+			curNode = curNode->firstChild;
+		}
+		Operand op = FindVar(curNode->firsChild->Valstr);
+		array = Type_get(curNode->firstChild);
+		op->type = array;
+		return op;
+	}
+	else{
+                printf("Error!No This analyse!\n");
+                return NULL;
+        }
+}

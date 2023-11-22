@@ -210,12 +210,13 @@ CodeList Translate_FunDec(struct Node* node){
 		// 获取参数列表
 		Type newFuncType = Type_get(node->firstChild);
 		FieldList params = newFuncType->inform.function->next;
+		CodeList Params = NULL;
 		while(params != NULL){
 			// 构造函数参数列表判断参数类型
 			if(params->type->kind == BASIC){
 				
 			}
-			else if(params->type->kind == STRUCTURE){
+			else if(params->type->kind == ARRAY){
 				//处理结构体
 				
 			}
@@ -502,6 +503,25 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 	}
 	else if(Use_This_Rule(node, 4, "Exp", "LB", "Exp", "RB")){
 		if(LAB3_DEBUG)  printf("Exp := Exp LB Exp RB\n");
+		Operand addr = CreateTemp();
+		addr->kind = OP_ADDR;
+		CodeList Exp1 = Translate_Exp(node->firstChild, addr);
+		Type Exp1type = Exp(node->firstChild);
+		int size = Get_arraysize(Exp1type->inform.array.type);
+		Operand offset = CreateTemp();
+		CodeList Exp2 = Translate_Exp(node->firstChild->bro->bro, offset);
+		IRCode mulcode = CreateIRCode(IR_MUL);
+		mulcode->binOp.result = offset;
+		mulcode->binOp.op1 = offset;
+		mulcode->binOp.op2 = CreateConstant(size*4);
+		IRCode addcode = CreateIRCode(IR_ADD);
+		addcode->binOp.result = value;
+		addcode->binOp.op1 = addr;
+		addcode->binOp.op2 = offset;
+		value->kind = OP_ADDR;
+		CodeList Exp = Merge_CodeList(Exp1, Exp2);
+		CodeList res = Merge_CodeList(CreateNewCodeList(mulcode), CreateNewCodeList(addcode));
+		return Merge_CodeList(Exp, res);
 		
 	}
 	else if(Use_This_Rule(node, 3, "Exp", "DOT", "ID")){
@@ -705,7 +725,15 @@ CodeList Translate_Dec(struct Node*node){
                 return NULL;
 	if(Use_This_Rule(node, 1, "VarDec")){
 		if(LAB3_DEBUG)  printf("Dec := VarDec\n");
-		return NULL;
+		Operand VarDec = Translate_VarDec(node->firstChild);
+		CodeList colist = NULL;
+		if(VarDec->type != NULL && VarDec->type->kind == ARRAY){
+			IRCode ircode = CreateIRCode(IR_DEC);
+			ircode->inform.dec.VarType = VarDec;
+			ircode->inform.dec.size = Get_arraysize(VarDec->type);
+			colist = CreateNewCodeList(ircode);
+		}
+		return colist;
 	}
 	else if(Use_This_Rule(node, 3 , "VarDec", "ASSIGNOP", "Exp")){
 		if(LAB3_DEBUG)  printf("Dec := VarDec ASSIGNOP Exp\n");
@@ -751,4 +779,12 @@ Operand Translate_VarDec(struct Node*node){
                 printf("Error!No This analyse!\n");
                 return NULL;
         }
+}
+
+int Get_arraysize(Type type){
+	if(type->kind = ARRAY){
+		return type->inform.array.size*(type->inform.array.type);
+	}
+	else
+		return 4;
 }

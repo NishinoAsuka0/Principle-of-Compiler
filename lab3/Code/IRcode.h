@@ -98,6 +98,7 @@ struct VarList_{
 }
 
 void printCode(IRCode curNode);
+int Get_arraysize(Type type);
 CodeList Merge_CodeList(CodeList Code1, CodeList Code2);
 void Add_Code(CodeList IrCode);
 IRCode CreateIRCode(IRCodeKind IRkind);

@@ -50,7 +50,7 @@ SEMI	";"
 %option yylineno
 
 %%
-{RELOP} {return RELOP;}
+{RELOP} {	yylval.type_string = strdup(yytext);	return RELOP;}
 ";"     {return SEMI;}
 ","     {return COMMA;}
 "="     {return ASSIGNOP;}

@@ -8,7 +8,23 @@ void initHashTable(){
 	for(int i = 0; i < 1024; i++){
 		gTable[i] = NULL;
 		sTable[i] = NULL;
-	}	
+	}
+	Type readType = (Type)malloc(sizeof(struct Type_));
+	Type writeType = (Type)malloc(sizeof(struct Type_));
+	readType->kind = FUNCTION;
+	writeType->kind = FUNCTION;
+	Function funcread = (Function)malloc(sizeof(struct Function_));
+	Function funcwrite = (Function)malloc(sizeof(struct Function_));
+	char* readname = malloc(strlen("read"+1));
+	char* writename = malloc(strlen("read"+1));
+	strcpy(readname, "read");
+	strcpy(writename, "write");
+	funcread->name = readname;
+	funcwrite->name = writename;
+	readType->inform.function = funcread;
+	writeType->inform.function = funcwrite;
+	insert(readname, readType);
+	insert(writename, writeType);
 }
 
 

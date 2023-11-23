@@ -5,6 +5,7 @@
    	#include <stdarg.h>
     	#include "lex.yy.c"
     	#include "syntaxTree.h"
+    	
 
     	void yyerror(const char* s);
     	
@@ -34,9 +35,9 @@
 /* declared tokens */
 %token <type_int> INT
 %token <type_float>FLOAT
-%token <type_string>ID TYPE
+%token <type_string>ID TYPE RELOP
 %token SEMI COMMA
-%token RELOP ASSIGNOP
+%token ASSIGNOP
 %token PLUS MINUS
 %token STAR DIV
 %token AND OR
@@ -391,8 +392,10 @@ Exp : Exp ASSIGNOP Exp {
             construct($$, 3, $1, nodeOR, $3);
         }
     | Exp RELOP Exp {
-            struct Node* nodeRELOP = constructNode("RELOP", NVL, @2.first_line);
             $$ = constructNode("Exp", NTML, @$.first_line);
+            struct Node* nodeRELOP = constructNode("RELOP", NVL, @2.first_line);
+            nodeRELOP->Valstr = $2;
+            //printf("Relop is %s\n", nodeRELOP->Valstr);
             construct($$, 3, $1, nodeRELOP, $3);
         }
     | Exp PLUS Exp {

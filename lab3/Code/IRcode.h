@@ -1,25 +1,25 @@
 #ifndef IRCODE
 #define IRCODE
-#define LAB3_DEBUG 0
+#define LAB3_DEBUG 1
 #include "semantic.h"
 
 
 typedef struct Operand_* Operand;
 typedef struct IRCode_* IRCode;
 typedef struct CodeList_* CodeList;
-typedef struct VarList_* VarList;
+typedef struct VarList_* IR_VarList;
 typedef struct ArgList_* ArgList;
 
 CodeList CodeHead;
 CodeList CodeTail;
-VarList VarHead;
-VarList VarTail;
+IR_VarList VarHead;
+IR_VarList VarTail;
 int VarNum,LabelNum,TempNum;
 
 
 typedef enum{
 	IR_LABEL,
-	IR_FUNCTION.
+	IR_FUNCTION,
 	IR_ASSIGN,
 	IR_ADD,
 	IR_SUB,
@@ -28,6 +28,7 @@ typedef enum{
 	IR_GET_ADDR,
 	IR_GET_ADDRVAL,
 	IR_GET_VAL,
+	//IR_VAL_ASSIGN,
 	IR_GOTO,
 	IR_IF_GOTO,
 	IR_RETURN,
@@ -37,7 +38,7 @@ typedef enum{
 	IR_CALL,
 	IR_DEC,
 	IR_ARG	
-}IRCodeKind
+}IRCodeKind;
 
 typedef enum{
 	OP_VAR,	// 变量
@@ -59,7 +60,7 @@ struct Operand_{
 	}inform;
 	Type type;	// 计算数组、结构体占用size
 	int param;	// 标识函数参数
-}
+};
 
 struct IRCode_{
 	IRCodeKind kind;
@@ -71,39 +72,41 @@ struct IRCode_{
         	Operand gotoLabelID;  // GOTO
         	struct { Operand ifopleft; char*relop; Operand ifopright; Operand gotoLabelID; } if_goto;  // IF_GOTO
         	Operand retVal;  // RETURN
-        	struct { Operand VarType; Operand size; } dec;  // DEC
+        	struct { Operand VarType; int size; } dec;  // DEC
         	Operand arg;  // ARG
         	struct { Operand ret; char* funcName; } call;  // CALL
         	Operand param;  // PARAM
         	Operand read;  // READ
 		Operand write; //WRITE
 	}inform;
-}
+};
 
 struct CodeList_{
 	IRCode IRcoding;
 	CodeList pre;
 	CodeList next;//中间代码列表
-}
+};
 
 struct ArgList_{
 	Operand arg;
 	ArgList next;
-}
+};
 
 struct VarList_{
 	char* VarName;
 	Operand Var;
-	VarList next;
-}
+	IR_VarList next;
+};
 
-void printCode(IRCode curNode);
+char* GetVarString(Operand op);
+void printIRCode(CodeList curNode, FILE*file);
 int Get_arraysize(Type type);
 CodeList Merge_CodeList(CodeList Code1, CodeList Code2);
 void Add_Code(CodeList IrCode);
 IRCode CreateIRCode(IRCodeKind IRkind);
-Operand GetSizeOfstruct(Type structType, char*name);
+//Operand GetSizeOfstruct(Type structType, char*name);
 Operand FindVar(char*name);
+Operand FindArray(char*name);
 Operand CreateConstant(int val);
 Operand CreateTemp();
 Operand CreateLabel();
@@ -122,6 +125,6 @@ Operand Translate_VarDec(struct Node*node);
 CodeList Translate_StmtList(struct Node* node);
 CodeList Translate_Stmt(struct Node* node);
 CodeList Translate_Exp(struct Node* node, Operand value);
-CodeList Translate_Args(struct Node* node, ArgList arglist);
+CodeList Translate_Args(struct Node* node, ArgList* arglist, FieldList params);
 CodeList Translate_Cond(struct Node* node, Operand TrueLabel, Operand FalseLabel);
 #endif

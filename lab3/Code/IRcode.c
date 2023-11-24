@@ -178,6 +178,7 @@ Operand FindVar(char*name){
 		if(equal_string(name, p->VarName)){
 			return p->Var;
 		}
+		p = p->next;
 	}
 	Operand newop = (Operand)malloc(sizeof(struct Operand_));
 	newop->kind = OP_VAR;
@@ -186,6 +187,7 @@ Operand FindVar(char*name){
 	IR_VarList newlist = (IR_VarList)malloc(sizeof(struct VarList_));
 	newlist->VarName = name;
 	newlist->Var = newop;
+	newlist->next = NULL;
 	if(VarHead == NULL){
 		VarHead = VarTail = newlist;
 	}
@@ -196,7 +198,7 @@ Operand FindVar(char*name){
 	return newop;
 }
 
-Operand FindArray(char*name){
+Operand FindArray(char*name, Type type){
         //Operand newop = (Operand)malloc(sizeof Operand_);
         //newop->kind = OP_
 	if(LAB3_DEBUG)  printf("FindArray and ArrayName is %s\n", name);
@@ -205,14 +207,17 @@ Operand FindArray(char*name){
                 if(equal_string(name, p->VarName)){
                         return p->Var;
                 }
+		p = p->next;
         }
         Operand newop = (Operand)malloc(sizeof(struct Operand_));
         newop->kind = OP_ARRAY;
         newop->inform.Var_Num = VarNum;
+	newop->type = type;
         VarNum++;
         IR_VarList newlist = (IR_VarList)malloc(sizeof(struct VarList_));
         newlist->VarName = name;
         newlist->Var = newop;
+	newlist->next = NULL;
         if(VarHead == NULL){
                 VarHead = VarTail = newlist;
         }
@@ -220,6 +225,7 @@ Operand FindArray(char*name){
                 VarTail->next = newlist;
                 VarTail = newlist;
         }
+	//printf("ending\n");
         return newop;
 }
 
@@ -407,7 +413,7 @@ CodeList Translate_FunDec(struct Node* node){
 			}
 			else if(params->type->kind == ARRAY){
 				//处理数组
-				Operand basic = FindArray(params->name);
+				Operand basic = FindArray(params->name, NULL);
                                 CodeList p = CreateOpCodeList(basic, IR_PARAM);
                                 Params = Merge_CodeList(p, Params);
 			}
@@ -619,17 +625,17 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 				Operand addr2 = CreateTemp();
 				IRCode ir1 = CreateIRCode(IR_GET_ADDR);
 				IRCode ir2 = CreateIRCode(IR_GET_ADDR);
-				ir1->left = addr1;
-				ir1->right = op;
-				ir2->left = addr2;
-				ir2->right = Temp;
+				ir1->inform.assign.left = addr1;
+				ir1->inform.assign.right = op;
+				ir2->inform.assign.left = addr2;
+				ir2->inform.assign.right = Temp;
 				Type array = Type_get(node->firstChild->firstChild);
 				int Arraysize = Get_arraysize(array);
 				for(int i = 0 ;i < Arraysize; i += 4){
 					Operand array1 = CreateTemp();
 					Operand array2 = CreateTemp();
-					IRCode ir3 = CreateIRCode(IR_PLUS);
-					IRCode ir4 = CreateIRCode(IR_PLUS);
+					IRCode ir3 = CreateIRCode(IR_ADD);
+					IRCode ir4 = CreateIRCode(IR_ADD);
 					ir3->inform.binOp.result = array1;
 					ir3->inform.binOp.op1 = addr1;
 					ir3->inform.binOp.op2 = CreateConstant(i);
@@ -678,11 +684,33 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 		}
 		else{//第一个Exp是一个数组
 			Operand ArrayAddr = CreateTemp();
-			CodeList Exp = Translate(node->firstChild, ArrayAddr);
+			Operand TempVal = CreateTemp();
+			CodeList Exp1 = Translate_Exp(node->firstChild, ArrayAddr);
+			CodeList Exp2 = Translate_Exp(node->firstChild->bro->bro, TempVal);
+			CodeList Exp = Merge_CodeList(Exp1, Exp2);
 			IRCode ir = CreateIRCode(IR_GET_VAL);
-			ir->inform.assign.left = value;
-			ir->inform.assign.right = ArrayAddr
-			return NULL;
+			CodeList result = NULL;
+			if(TempVal->kind == OP_ARRAY || TempVal->kind == OP_ADDR){
+				Operand Temp0 = CreateTemp();
+				IRCode middle = CreateIRCode(IR_GET_ADDRVAL);
+				middle->inform.assign.left = Temp0;
+				middle->inform.assign.right = TempVal;
+				ir->inform.assign.left = ArrayAddr;
+				ir->inform.assign.right = Temp0;
+				result = Merge_CodeList(Exp, Merge_CodeList(CreateNewCodeList(middle), CreateNewCodeList(ir)));
+			}
+			else{
+				ir->inform.assign.left = ArrayAddr;
+				ir->inform.assign.right = TempVal;
+				result = Merge_CodeList(Exp, CreateNewCodeList(ir));
+			}
+			if(value != NULL){
+				IRCode valuecode = CreateIRCode(IR_GET_ADDRVAL);
+				valuecode->inform.assign.left = value;
+				valuecode->inform.assign.right = ArrayAddr;
+				result = Merge_CodeList(result, CreateNewCodeList(valuecode));
+			}
+			return result;
 		}
 	}
 	else if(equal_string(Children->nodeName, "MINUS")){
@@ -1002,13 +1030,17 @@ CodeList Translate_Dec(struct Node*node){
 	if(Use_This_Rule(node, 1, "VarDec")){
 		if(LAB3_DEBUG)  printf("Dec := VarDec\n");
 		Operand VarDec = Translate_VarDec(node->firstChild);
+		//printf("VarDec name is %d\n", VarDec->inform.Var_Num);
 		CodeList colist = NULL;
 		if(VarDec->type != NULL && VarDec->type->kind == ARRAY){
 			IRCode ircode = CreateIRCode(IR_DEC);
 			ircode->inform.dec.VarType = VarDec;
+			//printf("bbb\n");
 			ircode->inform.dec.size = Get_arraysize(VarDec->type);
 			colist = CreateNewCodeList(ircode);
+			printf("ending\n");
 		}
+		printf("aaaa");
 		return colist;
 	}
 	else if(Use_This_Rule(node, 3 , "VarDec", "ASSIGNOP", "Exp")){
@@ -1045,9 +1077,10 @@ Operand Translate_VarDec(struct Node*node){
 		struct Node* curNode = node;
 		while(equal_string(curNode->firstChild->nodeName, "VarDec"))
 			curNode = curNode->firstChild;
-		Operand op = FindArray(curNode->firstChild->Valstr);
 		array = Type_get(curNode->firstChild);
-		op->type = array;
+		Operand op = FindArray(curNode->firstChild->Valstr, array);
+		//array = Type_get(curNode->firstChild);
+		//op->type = array;
 		return op;
 	}
 	else{
@@ -1057,7 +1090,7 @@ Operand Translate_VarDec(struct Node*node){
 }
 
 int Get_arraysize(Type type){
-	if(type->kind = ARRAY){
+	if(type->kind == ARRAY){
 		return type->inform.array.size*Get_arraysize(type->inform.array.type);
 	}
 	else

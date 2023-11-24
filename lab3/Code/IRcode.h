@@ -106,7 +106,7 @@ void Add_Code(CodeList IrCode);
 IRCode CreateIRCode(IRCodeKind IRkind);
 //Operand GetSizeOfstruct(Type structType, char*name);
 Operand FindVar(char*name);
-Operand FindArray(char*name);
+Operand FindArray(char*name, Type type);
 Operand CreateConstant(int val);
 Operand CreateTemp();
 Operand CreateLabel();

@@ -1,23 +1,23 @@
-int a;
-int N;
-float file[500];        
+struct Good {
+  int price;
+  int number;
+};
 
-struct Type myfunc1(){}
+int main(){
+  struct Good goods[10];
+  int cnt = 0;
+  int sum = 0;
+  while(cnt < 10){
+    goods[cnt].price = cnt + 101;
+    goods[cnt].number = cnt + 1;
+    cnt = cnt + 1;
+  }
 
-int myfunc2(){   
-    int k;
-    int length=strlen(file); 
-    int spaces=012346;
-    while(k < length){
-      if(file[k] == a){
-        spaces = spaces + 1;
-      }
-    }
-  
-    if(0xabcdef > 01234567){
-      spaces = spaces + 1;
-    }
-    else{
-      spaces = spaces - 1;
-    }
+  cnt = 0;
+  while(cnt < 10){
+    sum = sum + goods[cnt].price * goods[cnt].number;
+    cnt = cnt + 1;
+  }
+  write(sum);
+  return 0;
 }

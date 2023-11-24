@@ -1,14 +1,20 @@
-struct Position {
-  float x;
-  float y;
-};
-
-float cal(struct Position pp1, struct Position pp2){
-  return (pp1.x - pp2.x) * (pp1.x - pp2.x) + (pp1.y - pp2.y) * (pp1.y - pp2.y);
-}
-
-float main(){
-  struct Position p1, p2;
-  dis(p1, p2);
-  return 1.11;
+int main(){
+  int a, b, c;
+  int result;
+  a = read();
+  b = read();
+  c = read();
+  result = b * b - 4 * a * c;
+  if(result > 0){
+    write(2);
+  }
+  else{
+    if(result == 0){
+      write(1);
+    }
+    else{
+      write(0);
+    }
+  }
+  return 0;
 }

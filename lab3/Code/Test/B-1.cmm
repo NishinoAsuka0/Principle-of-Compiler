@@ -1,28 +1,24 @@
-struct Rectangle{
-  float r_length = 100.0;
-  float r_width;
-};
-
-struct Triangle{
-  float t_height;
-  float t_width;
-};
-
-float area_rec(struct Rectangle rec){
-  return rec.r_length * rec.r_width;
+int factorial(int m){
+  int f_res = 1;
+  while(m > 1){
+    f_res = f_res * m;
+    m = m - 1;
+  }
+  return f_res;
 }
 
-int area_tri(struct Triangle tri1){
-  return tri1.t_height * tri1.t_width;
+int cal_combiniation(int c_base, int c_num){
+  return factorial(c_base) / (factorial(c_num) * factorial(c_base - c_num));
 }
 
-float area_tri(struct Triangle tri2){
-  return tri2.t_height * tri2.t_width;
+int cal_permutation(int p_base, int p_num){
+  return factorial(p_base) / factorial(p_base - p_num);
 }
 
-int main(){
-  struct Rectangle rectangles[100];
-  struct Triangle triangles[50];
-  float area;
-  area_rec(rectangles[0]) = area;
+int main() {
+  int n = read();
+  int k = read();
+  write(cal_combiniation(n, k));
+  write(cal_permutation(n, k));  
+  return 0;
 }

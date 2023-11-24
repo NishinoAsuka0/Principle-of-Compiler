@@ -1,47 +1,72 @@
-struct Combination {
-	int c_base;
-	int c_num;
-	int c_answer;
-};
-
-struct Permutation{
-	int p_base;
-	int p_num;
-	int p_answer;
-};
-
-int factorial(int n){
-	int f_sum = 1;
-	int index = n;
-	while(index > 1){
-		f_sum = f_sum * index;
-		index = index - 1;
-	}
-	return f_sum;
+int factorial(int m){
+  int f_res = 1;
+  while(m > 1){
+    f_res = f_res * m;
+    m = m - 1;
+  }
+  return f_res;
 }
 
-int calculation_combination(struct Combination com){
-	int cc_sum = 1;
-	cc_sum = cc_sum * factorial(com.c_base);
-	cc_sum = cc_sum / factorial(com.c_num);
-	cc_sum = cc_sum / factorial(com.c_base - com.c_num);
-	return cc_sum;
+int cal_combiniation(int c_base, int c_num){
+  return factorial(c_base) / (factorial(c_num) * factorial(c_base - c_num));
 }
 
-
-int calculation_permutation(struct Permutation per){
-	int cp_sum = 1;
-	cp_sum = cp_sum * factorial(per.p_base);
-	cp_sum = cp_sum / factorial(per.p_base - per.p_answer);
-	return cp_sum;
+int cal_permutation(int p_base, int p_num){
+  return factorial(p_base) / factorial(p_base - p_num);
 }
+
+int isqrt(int n) {
+    int i = 0;
+    while (i < n) {
+        if (i * i <= n && (i + 1) * (i + 1) > n) {
+            return i;
+        }
+        i = i + 1;
+    }
+    return -1;
+}
+
+int mod(int k1, int k2) {
+    if (k1 < 0 || k2 <= 0) {
+        return -1;
+    } else {
+        return k1 - k1 / k2 * k2;
+    }
+}
+
+int is_prime(int l) {
+    int j = 2;
+    int end = isqrt(l);
+    while (j <= end) {
+        if (mod(l, j) == 0) {
+            return 0;
+        }
+        j = j + 1;
+    }
+    return 1;
+}
+
 
 int main(){
-	struct Combination com1;
-	struct Permutation per1;
-	per1.p_base = com1.c_base = 4;
-	per1.p_num = com1.c_num = 2;
-	com1.c_answer = calculation_combination(com1);
-	per1.p_answer = calculation_permutation(per1);
-	return 0;
+  int base = read();
+  int key = read();
+  int com = cal_combiniation(base, key);
+  int per = cal_permutation(base,key);
+  int index = 1;
+  while(index <= com){
+    if(is_prime(index)){
+      write(index);
+    }
+    index = index + 1;
+  }
+
+  index = 1;
+  while(index <= per){
+    if(is_prime(index)){
+      write(index);
+    }
+    index = index + 1;
+  }
+
+  return 0;
 }

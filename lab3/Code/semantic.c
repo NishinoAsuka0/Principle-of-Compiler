@@ -685,7 +685,7 @@ Type Exp(struct Node*node){
 			}
 			FieldList param = Args(Children->bro->bro);
 			//错误类型9
-			if(!equal_Param(param, typeFunc->inform.function->next)){
+			if(!equal_string("write", Children->Valstr) && !equal_Param(param, typeFunc->inform.function->next)){
 				printError("9", Children->bro->bro->lineNum, "The Args are not equal");
 				return NULL;
 			}

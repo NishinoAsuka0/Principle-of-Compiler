@@ -3,13 +3,15 @@
 #include <stdlib.h>
 
 
+int IR_ifnotstruct = 1;
+
 char* GetVarString(Operand op)
 {
 	char*msg = malloc(10);
 	if(op->kind == OP_CONSTANT){
 		sprintf(msg, "#%d", op->inform.Value);
 	}
-	else if(op->kind == OP_TEMP){
+	else if(op->kind == OP_TEMP || op->kind == OP_ADDR){
 		sprintf(msg, "t%d", op->inform.Temp_Num);
 	}
 	else
@@ -18,16 +20,20 @@ char* GetVarString(Operand op)
 }
 void printIRCode(CodeList curNode, FILE*file){
 	CodeList nowList = curNode;
-	while(nowList != NULL){
+	while(nowList != NULL && IR_ifnotstruct){
+		//printf("start\n");
 		IRCode nowNode = nowList->IRcoding;
+		//printf("start 2 \n");
 		switch(nowNode->kind){
 			case IR_LABEL:
 			{
+				if(LAB3_DEBUG)	printf("LABEL label%d :\n", nowNode->inform.labelID->inform.Label_Num);
 				fprintf(file, "LABEL label%d :\n", nowNode->inform.labelID->inform.Label_Num);
 				break;
 			}
 			case IR_FUNCTION:
 			{
+				if(LAB3_DEBUG)	printf("FUNCTION %s :\n", nowNode->inform.funcName);
 				fprintf(file, "FUNCTION %s :\n", nowNode->inform.funcName);
 				break;
 			}
@@ -35,6 +41,7 @@ void printIRCode(CodeList curNode, FILE*file){
 			{
 				Operand left = nowNode->inform.assign.left;
 				Operand right = nowNode->inform.assign.right;
+				if(LAB3_DEBUG)	printf("%s := %s \n", GetVarString(left), GetVarString(right));
 				fprintf(file, "%s := %s \n", GetVarString(left), GetVarString(right));
 				break;
 			}
@@ -43,6 +50,7 @@ void printIRCode(CodeList curNode, FILE*file){
 				Operand res = nowNode->inform.binOp.result;
 				Operand left = nowNode->inform.binOp.op1;
                                 Operand right = nowNode->inform.binOp.op2;
+				if(LAB3_DEBUG)	printf("%s := %s + %s \n", GetVarString(res), GetVarString(left), GetVarString(right));
 				fprintf(file, "%s := %s + %s \n", GetVarString(res), GetVarString(left), GetVarString(right));
 				break;
 			}
@@ -51,6 +59,7 @@ void printIRCode(CodeList curNode, FILE*file){
                                 Operand res = nowNode->inform.binOp.result;
                                 Operand left = nowNode->inform.binOp.op1;
                                 Operand right = nowNode->inform.binOp.op2;
+				if(LAB3_DEBUG)	printf("%s := %s - %s \n", GetVarString(res), GetVarString(left), GetVarString(right));
                                 fprintf(file, "%s := %s - %s \n", GetVarString(res), GetVarString(left), GetVarString(right));
                                 break;
 			}
@@ -59,6 +68,7 @@ void printIRCode(CodeList curNode, FILE*file){
                                 Operand res = nowNode->inform.binOp.result;
                                 Operand left = nowNode->inform.binOp.op1;
                                 Operand right = nowNode->inform.binOp.op2;
+				if(LAB3_DEBUG)	printf("%s := %s * %s \n", GetVarString(res), GetVarString(left), GetVarString(right));
                                 fprintf(file, "%s := %s * %s \n", GetVarString(res), GetVarString(left), GetVarString(right));
                                 break;
 			}
@@ -67,13 +77,15 @@ void printIRCode(CodeList curNode, FILE*file){
                                 Operand res = nowNode->inform.binOp.result;
                                 Operand left = nowNode->inform.binOp.op1;
                                 Operand right = nowNode->inform.binOp.op2;
-                                fprintf(file, "%s := %s / %s \n", GetVarString(res), GetVarString(left), GetVarString(right));
+                                if(LAB3_DEBUG)	printf("%s := %s / %s \n", GetVarString(res), GetVarString(left), GetVarString(right));
+				fprintf(file, "%s := %s / %s \n", GetVarString(res), GetVarString(left), GetVarString(right));
                                 break;
 			}
 			case IR_GET_ADDR:
 			{
 				Operand left = nowNode->inform.assign.left;
                                 Operand right = nowNode->inform.assign.right;
+				if(LAB3_DEBUG)	printf("%s := &%s \n", GetVarString(left), GetVarString(right));
                                 fprintf(file, "%s := &%s \n", GetVarString(left), GetVarString(right));
                                 break;
 			}
@@ -81,6 +93,7 @@ void printIRCode(CodeList curNode, FILE*file){
 			{
 				Operand left = nowNode->inform.assign.left;
                                 Operand right = nowNode->inform.assign.right;
+				if(LAB3_DEBUG)	printf("%s := *%s \n", GetVarString(left), GetVarString(right));
                                 fprintf(file, "%s := *%s \n", GetVarString(left), GetVarString(right));
                                 break;
 			}
@@ -88,6 +101,7 @@ void printIRCode(CodeList curNode, FILE*file){
 			{
 				Operand left = nowNode->inform.assign.left;
                                 Operand right = nowNode->inform.assign.right;
+				if(LAB3_DEBUG)	printf("*%s := %s \n", GetVarString(left), GetVarString(right));
                                 fprintf(file, "*%s := %s \n", GetVarString(left), GetVarString(right));
                                 break;
 			}
@@ -100,6 +114,7 @@ void printIRCode(CodeList curNode, FILE*file){
                         }*/
 			case IR_GOTO:
 			{
+				if(LAB3_DEBUG)	printf("GOTO label%d\n", nowNode->inform.gotoLabelID->inform.Label_Num);
 				fprintf(file, "GOTO label%d\n", nowNode->inform.gotoLabelID->inform.Label_Num);
 				break;
 			}
@@ -107,41 +122,49 @@ void printIRCode(CodeList curNode, FILE*file){
 			{
 				Operand left = nowNode->inform.if_goto.ifopleft;
 				Operand right = nowNode->inform.if_goto.ifopright;
+				if(LAB3_DEBUG)	printf("IF %s %s %s GOTO label%d\n", GetVarString(left), nowNode->inform.if_goto.relop, GetVarString(right), nowNode->inform.if_goto.gotoLabelID->inform.Label_Num);
 				fprintf(file, "IF %s %s %s GOTO label%d\n", GetVarString(left), nowNode->inform.if_goto.relop, GetVarString(right), nowNode->inform.if_goto.gotoLabelID->inform.Label_Num);
 				break;
 			}
 			case IR_RETURN:
 			{
+				if(LAB3_DEBUG)	printf("RETURN %s\n", GetVarString(nowNode->inform.retVal));
 				fprintf(file, "RETURN %s\n", GetVarString(nowNode->inform.retVal));
 				break;
 			}
 			case IR_PARAM:
 			{
+				if(LAB3_DEBUG)	printf("PARAM %s\n", GetVarString(nowNode->inform.param));
 				fprintf(file, "PARAM %s\n", GetVarString(nowNode->inform.param));
 				break;
 			}
 			case IR_READ:
 			{
+				if(LAB3_DEBUG)	printf("READ %s\n", GetVarString(nowNode->inform.read));
 				fprintf(file, "READ %s\n", GetVarString(nowNode->inform.read));
                                 break;
 			}
 			case IR_WRITE:
 			{
+				if(LAB3_DEBUG)	printf("WRITE %s\n", GetVarString(nowNode->inform.write));
 				fprintf(file, "WRITE %s\n", GetVarString(nowNode->inform.write));
                                 break;
 			}
 			case IR_ARG:
 			{
+				if(LAB3_DEBUG)	printf("ARG %s\n", GetVarString(nowNode->inform.arg));
 				fprintf(file, "ARG %s\n", GetVarString(nowNode->inform.arg));
                                 break;
 			}
 			case IR_CALL:
 			{
+				if(LAB3_DEBUG)	printf("%s := CALL %s \n", GetVarString(nowNode->inform.call.ret), nowNode->inform.call.funcName);
 				fprintf(file, "%s := CALL %s \n", GetVarString(nowNode->inform.call.ret), nowNode->inform.call.funcName);
 				break;
 			}
 			case IR_DEC:
 			{
+				if(LAB3_DEBUG)	printf("DEC %s %d\n", GetVarString(nowNode->inform.dec.VarType), nowNode->inform.dec.size);
 				fprintf(file, "DEC %s %d\n", GetVarString(nowNode->inform.dec.VarType), nowNode->inform.dec.size);
 				break;
 			}
@@ -198,7 +221,19 @@ Operand FindVar(char*name){
 	return newop;
 }
 
-Operand FindArray(char*name, Type type){
+IR_VarList Findlist(char*name){
+	if(LAB3_DEBUG)  printf("FindVar and VarName is %s\n", name);
+        IR_VarList p = VarHead;
+        while(p != NULL){
+                if(equal_string(name, p->VarName)){
+                        return p;
+                }
+                p = p->next;
+        }
+	return NULL;
+}
+
+Operand FindArray(char*name, Type type, bool ifParam){
         //Operand newop = (Operand)malloc(sizeof Operand_);
         //newop->kind = OP_
 	if(LAB3_DEBUG)  printf("FindArray and ArrayName is %s\n", name);
@@ -217,6 +252,7 @@ Operand FindArray(char*name, Type type){
         IR_VarList newlist = (IR_VarList)malloc(sizeof(struct VarList_));
         newlist->VarName = name;
         newlist->Var = newop;
+	newlist->ifParam = ifParam;
 	newlist->next = NULL;
         if(VarHead == NULL){
                 VarHead = VarTail = newlist;
@@ -316,14 +352,18 @@ void Add_Code(CodeList IrCode){
 		//printCode(IrCode->IRcoding);
 	}
 	if(CodeHead == NULL){
+		//printf("bbb\n");
 		CodeHead = CodeTail = IrCode;
+		//printf("bbb\n");
 	}
 	else{
 		if(IrCode != NULL){
+		//	printf("aaa\n");
 			CodeTail->next = IrCode;
 			IrCode->pre = CodeTail;
 			CodeTail = IrCode;
 		}
+	//	printf("ending\n");
 	}
 }
 
@@ -409,17 +449,18 @@ CodeList Translate_FunDec(struct Node* node){
 			if(params->type->kind == BASIC){
 				Operand basic = FindVar(params->name);
 				CodeList p = CreateOpCodeList(basic, IR_PARAM);
-				Params = Merge_CodeList(p, Params);		
+				Params = Merge_CodeList(Params, p);		
 			}
 			else if(params->type->kind == ARRAY){
 				//处理数组
-				Operand basic = FindArray(params->name, NULL);
+				Operand basic = FindArray(params->name, params->type, true);
                                 CodeList p = CreateOpCodeList(basic, IR_PARAM);
-                                Params = Merge_CodeList(p, Params);
+                                Params = Merge_CodeList(Params, p);
 			}
 			else{
 				printf("Error!No this rule!\n");
 			}
+			params = params->next;
 		}
 		return Merge_CodeList(FunDec, Params);
 	}
@@ -556,8 +597,16 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 		if(Children->bro == NULL){
 			// 处理标识符
 			if(LAB3_DEBUG)	printf("Exp := ID\n");
-			Operand operand = FindVar(Children->Valstr);	//查找标识符
+			IR_VarList oplist = Findlist(Children->Valstr);
+			Operand operand = oplist->Var;	//查找标识符i
+			//value->kind = OP_TEMP;
 			if(operand->kind == OP_ARRAY || operand->kind == OP_STRUCTURE){
+				if(oplist->ifParam){
+					IRCode ircode = CreateIRCode(IR_ASSIGN);
+                	                ircode->inform.assign.left = value;
+        	                        ircode->inform.assign.right = operand;
+	                                return CreateNewCodeList(ircode);
+				}
 				IRCode ircode = CreateIRCode(IR_GET_ADDR);
 				ircode->inform.assign.left = value;
 				ircode->inform.assign.right = operand;
@@ -591,7 +640,10 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 					arglist = arglist->next;
 				}
 				IRCode CallCode = CreateIRCode(IR_CALL);
-				CallCode->inform.call.ret = value;
+				if(value != NULL)
+					CallCode->inform.call.ret = value;
+				else
+					CallCode->inform.call.ret = CreateTemp();
 				CallCode->inform.call.funcName = nowfunc->name;
 				CodeList CallFunc = CreateNewCodeList(CallCode);
 				return Merge_CodeList(Merge_CodeList(Args, params), CallFunc);
@@ -622,14 +674,18 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 			IRCode ircode;
 			if(op->kind == OP_ARRAY){//整个数组的赋值
 				Operand addr1 = CreateTemp();
-				Operand addr2 = CreateTemp();
+				//Operand addr2 = CreateTemp();
+				addr1->kind = OP_ADDR;
+				//addr2->kind = OP_ADDR;
 				IRCode ir1 = CreateIRCode(IR_GET_ADDR);
-				IRCode ir2 = CreateIRCode(IR_GET_ADDR);
+				//IRCode ir2 = CreateIRCode(IR_GET_ADDR);
 				ir1->inform.assign.left = addr1;
 				ir1->inform.assign.right = op;
-				ir2->inform.assign.left = addr2;
-				ir2->inform.assign.right = Temp;
+				//ir2->inform.assign.left = addr2;
+				//ir2->inform.assign.right = Temp;
+				code = CreateNewCodeList(ir1);
 				Type array = Type_get(node->firstChild->firstChild);
+				CodeList arraycopy = NULL;
 				int Arraysize = Get_arraysize(array);
 				for(int i = 0 ;i < Arraysize; i += 4){
 					Operand array1 = CreateTemp();
@@ -640,9 +696,10 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 					ir3->inform.binOp.op1 = addr1;
 					ir3->inform.binOp.op2 = CreateConstant(i);
 					ir4->inform.binOp.result = array2;
-                                        ir4->inform.binOp.op1 = addr2;
+                                        ir4->inform.binOp.op1 = Temp;
                                         ir4->inform.binOp.op2 = CreateConstant(i);
 					CodeList c1 = Merge_CodeList(CreateNewCodeList(ir3), CreateNewCodeList(ir4));
+					//c1 = Merge_CodeList(Merge_CodeList(CreateNewCodeList(ir1), CreateNewCodeList(ir2)), c1);
 					IRCode assign1 = CreateIRCode(IR_GET_ADDRVAL);
 					Operand temp = CreateTemp();
 					assign1->inform.assign.left = temp;
@@ -650,32 +707,33 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 					IRCode assign2 = CreateIRCode(IR_GET_VAL);
                                         assign2->inform.assign.left = array1;
                                         assign2->inform.assign.right = temp;
-					code = Merge_CodeList(c1, Merge_CodeList(CreateNewCodeList(assign1), CreateNewCodeList(assign2)));
+					arraycopy = Merge_CodeList(arraycopy, Merge_CodeList(c1, Merge_CodeList(CreateNewCodeList(assign1), CreateNewCodeList(assign2))));
 				}
+				code = Merge_CodeList(code, arraycopy);
 			}
 			else{
-				if((op->kind == OP_ADDR) && Temp->kind != OP_ADDR && Temp->kind != OP_ARRAY){
+				/*if((op->kind == OP_ADDR) && Temp->kind != OP_ADDR && Temp->kind != OP_ARRAY){
 					ircode = CreateIRCode(IR_GET_VAL);
 				}
 				else if((Temp->kind == OP_ADDR || Temp->kind == OP_ARRAY) && op->kind != OP_ADDR){
 					ircode = CreateIRCode(IR_GET_ADDRVAL);
 				}
-				else
-					ircode = CreateIRCode(IR_ASSIGN);
+				else*/
+				ircode = CreateIRCode(IR_ASSIGN);
 				ircode->inform.assign.left = op;
 				ircode->inform.assign.right = Temp;
 				code = CreateNewCodeList(ircode);
 			}			
 			if(value != NULL){
 				IRCode valcode;
-				if((value->kind == OP_ADDR || value->kind == OP_ARRAY) && op->kind != OP_ADDR && op->kind != OP_ARRAY){
+				/*if((value->kind == OP_ADDR || value->kind == OP_ARRAY) && op->kind != OP_ADDR && op->kind != OP_ARRAY){
                   	              valcode = CreateIRCode(IR_GET_VAL);
                        		}
                        	 	else if((op->kind == OP_ADDR || op->kind == OP_ARRAY) && value->kind != OP_ADDR && value->kind != OP_ARRAY){
                         	        valcode = CreateIRCode(IR_GET_ADDRVAL);
                        	 	}
-                  	        else
-                                	valcode = CreateIRCode(IR_ASSIGN);
+                  	        else*/
+                                valcode = CreateIRCode(IR_ASSIGN);
                         	ircode->inform.assign.left = value;
                 	        ircode->inform.assign.right = op;
         	                code = Merge_CodeList(code, CreateNewCodeList(valcode));
@@ -684,8 +742,10 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 		}
 		else{//第一个Exp是一个数组
 			Operand ArrayAddr = CreateTemp();
+			ArrayAddr->kind = OP_ADDR;
 			Operand TempVal = CreateTemp();
 			CodeList Exp1 = Translate_Exp(node->firstChild, ArrayAddr);
+			//ArrayAddr->kind = OP_TEMP;
 			CodeList Exp2 = Translate_Exp(node->firstChild->bro->bro, TempVal);
 			CodeList Exp = Merge_CodeList(Exp1, Exp2);
 			IRCode ir = CreateIRCode(IR_GET_VAL);
@@ -803,19 +863,30 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 		IRCode mulcode = CreateIRCode(IR_MUL);
 		mulcode->inform.binOp.result = offset;
 		mulcode->inform.binOp.op1 = offset;
-		mulcode->inform.binOp.op2 = CreateConstant(size*4);
+		mulcode->inform.binOp.op2 = CreateConstant(size);
 		IRCode addcode = CreateIRCode(IR_ADD);
 		addcode->inform.binOp.result = value;
 		addcode->inform.binOp.op1 = addr;
 		addcode->inform.binOp.op2 = offset;
-		value->kind = OP_ADDR;
+		CodeList valuelist = NULL;
+		if(value != NULL && value->kind != OP_ADDR)
+		{
+			IRCode valuecode = CreateIRCode(IR_GET_ADDRVAL);
+			Operand temp0 = CreateTemp();
+			addcode->inform.binOp.result = temp0;
+			valuecode->inform.assign.left = value;
+			valuecode->inform.assign.right = temp0;
+			valuelist = CreateNewCodeList(valuecode);
+		//	value->kind = OP_ADDR;
+		
+		}
 		CodeList Exp = Merge_CodeList(Exp1, Exp2);
 		CodeList res = Merge_CodeList(CreateNewCodeList(mulcode), CreateNewCodeList(addcode));
-		return Merge_CodeList(Exp, res);
+		return Merge_CodeList(Exp, Merge_CodeList(res, valuelist));
 		
 	}
 	else if(Use_This_Rule(node, 3, "Exp", "DOT", "ID")){
-		if(LAB3_DEBUG)	printf("Exp := Exp DOT ID");
+		if(LAB3_DEBUG)	printf("Exp := Exp DOT ID\n");
 		/*Operand headaddr = CreateTemp();
 		headaddr->kind = OP_ADDR;
 		CodeList ExpList = Translate_Exp(Children, headaddr);	// 获取结构体的地址
@@ -831,6 +902,7 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 		addrcode->inform.assign.left = value;
 		addrcode->inform.assign.right = temp;
 		return Merge_CodeList(newExp, CreateNewCodeList(addrcode));*/
+		IR_ifnotstruct = 0;
 		printf("Cannot translate: Code contains variables or parameters of structure type.\n");
 		return NULL;
 	}
@@ -1038,9 +1110,9 @@ CodeList Translate_Dec(struct Node*node){
 			//printf("bbb\n");
 			ircode->inform.dec.size = Get_arraysize(VarDec->type);
 			colist = CreateNewCodeList(ircode);
-			printf("ending\n");
+	//		printf("ending\n");
 		}
-		printf("aaaa");
+	//	printf("aaaa");
 		return colist;
 	}
 	else if(Use_This_Rule(node, 3 , "VarDec", "ASSIGNOP", "Exp")){
@@ -1078,7 +1150,7 @@ Operand Translate_VarDec(struct Node*node){
 		while(equal_string(curNode->firstChild->nodeName, "VarDec"))
 			curNode = curNode->firstChild;
 		array = Type_get(curNode->firstChild);
-		Operand op = FindArray(curNode->firstChild->Valstr, array);
+		Operand op = FindArray(curNode->firstChild->Valstr, array, false);
 		//array = Type_get(curNode->firstChild);
 		//op->type = array;
 		return op;

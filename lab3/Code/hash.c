@@ -20,7 +20,9 @@ void initHashTable(){
 	strcpy(readname, "read");
 	strcpy(writename, "write");
 	funcread->name = readname;
+	funcread->state = 1;
 	funcwrite->name = writename;
+	funcwrite->state = 1;
 	readType->inform.function = funcread;
 	writeType->inform.function = funcwrite;
 	insert(readname, readType);

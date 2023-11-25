@@ -1,6 +1,6 @@
 #ifndef IRCODE
 #define IRCODE
-#define LAB3_DEBUG 1
+#define LAB3_DEBUG 0
 #include "semantic.h"
 
 
@@ -95,6 +95,7 @@ struct ArgList_{
 struct VarList_{
 	char* VarName;
 	Operand Var;
+	bool ifParam;
 	IR_VarList next;
 };
 
@@ -106,7 +107,8 @@ void Add_Code(CodeList IrCode);
 IRCode CreateIRCode(IRCodeKind IRkind);
 //Operand GetSizeOfstruct(Type structType, char*name);
 Operand FindVar(char*name);
-Operand FindArray(char*name, Type type);
+//IR_VarList Findlist(char*name);
+Operand FindArray(char*name, Type type, bool ifParam);
 Operand CreateConstant(int val);
 Operand CreateTemp();
 Operand CreateLabel();

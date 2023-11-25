@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
     if(argv[2] == NULL){ff = fopen("output.ir", "w");}
     else
         ff =fopen(argv[2], "w"); // 构造输出中间代码文件
+    //printf("tt\n");
     printIRCode(IRList, ff); // 写入生成的中间代码
     fclose(ff); // 关闭文件
     destroyTree(Root);

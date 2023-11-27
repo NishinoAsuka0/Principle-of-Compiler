@@ -449,13 +449,13 @@ CodeList Translate_FunDec(struct Node* node){
 			if(params->type->kind == BASIC){
 				Operand basic = FindVar(params->name);
 				CodeList p = CreateOpCodeList(basic, IR_PARAM);
-				Params = Merge_CodeList(Params, p);		
+				Params = Merge_CodeList(p, Params);		
 			}
 			else if(params->type->kind == ARRAY){
 				//处理数组
 				Operand basic = FindArray(params->name, params->type, true);
                                 CodeList p = CreateOpCodeList(basic, IR_PARAM);
-                                Params = Merge_CodeList(Params, p);
+                                Params = Merge_CodeList(p, Params);
 			}
 			else{
 				printf("Error!No this rule!\n");
@@ -589,9 +589,9 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 	if(LAB3_DEBUG){
                 printf("Go in Exp translate\n");
         }
-        //判断节点是否为空
-        if(node == NULL)
-                return NULL;
+    //判断节点是否为空
+    if(node == NULL)
+            return NULL;
 	struct Node*Children = node->firstChild;
 	if(equal_string(Children->nodeName, "ID")){
 		if(Children->bro == NULL){
@@ -636,7 +636,7 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 				// 用户自定义函数
 				CodeList params = NULL;
 				while(arglist != NULL){
-					params = Merge_CodeList(params, CreateOpCodeList(arglist->arg, IR_ARG));
+					params = Merge_CodeList(CreateOpCodeList(arglist->arg, IR_ARG), params);
 					arglist = arglist->next;
 				}
 				IRCode CallCode = CreateIRCode(IR_CALL);
@@ -705,8 +705,8 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 					assign1->inform.assign.left = temp;
 					assign1->inform.assign.right = array2;
 					IRCode assign2 = CreateIRCode(IR_GET_VAL);
-                                        assign2->inform.assign.left = array1;
-                                        assign2->inform.assign.right = temp;
+                    assign2->inform.assign.left = array1;
+                    assign2->inform.assign.right = temp;
 					arraycopy = Merge_CodeList(arraycopy, Merge_CodeList(c1, Merge_CodeList(CreateNewCodeList(assign1), CreateNewCodeList(assign2))));
 				}
 				code = Merge_CodeList(code, arraycopy);
@@ -877,7 +877,7 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 			valuecode->inform.assign.left = value;
 			valuecode->inform.assign.right = temp0;
 			valuelist = CreateNewCodeList(valuecode);
-		//	value->kind = OP_ADDR;
+			//value->kind = OP_ADDR;
 		
 		}
 		CodeList Exp = Merge_CodeList(Exp1, Exp2);

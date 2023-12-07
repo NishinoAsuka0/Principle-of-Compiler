@@ -7,7 +7,7 @@ Register Regs[32];
 VarStructure AsmVarList = NULL;
 
 
-void generate_asm(CodeList curcode,FILE* file){
+void Generate_Asm(CodeList curNode,FILE* file){
 	// 打印目标代码数据段
 	fprintf(file,".data\n_prompt: .asciiz \"Enter an integer:\"\n_ret: .asciiz \"\\n\"\n.globl main\n.text\n");
 	// 打印read函数定义
@@ -52,8 +52,33 @@ void generate_asm(CodeList curcode,FILE* file){
 			//函数负责保存和恢复
 			sprintf(newreg->RegName, "s%d", i-16);
 		}
-		else if()
+		else if(i >= 24 && i<=25){
+			sprintf(newreg->RegName, "t%d", i-24+8);	//函数调用者负责保存
+		}
+		else if(i >= 26 && i<=27){
+			sprintf(newreg->RegName, "k%d", i-26);	//中断处理保留
+		}
+		else if(i == 28){
+			newreg->RegName = "$gp";	//指向静态数据段64K内存空间的中部
+		}
+		else if(i == 29){
+			newreg->RegName = "$sp";	//栈顶指针
+		}
+		else if(i == 30){
+			newreg->RegName = "$s8";	//MIPS32作为$s8，GCC作为帧指针
+		}
+		else if(i == 31){
+			newreg->RegName = "$ra";	// 返回地址
+		}
+		if(LAB4_DEBUG)	printf("the RegName is %s\n", newreg->RegName);
 		newreg->var = NULL;
 		Regs[i] = newreg; 
 	}
+	CodeList nowNode = curNode;
+	while (nowNode != NULL)
+	{
+		Generate_IR_Asm(nowNode->IRcoding);
+		nowNode = nowNode->next;
+	}
+	
 }

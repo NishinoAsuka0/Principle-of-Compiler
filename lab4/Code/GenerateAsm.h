@@ -23,5 +23,7 @@ struct Register_{
 	VarStructure var;
 };
 void Generate_Asm(CodeList curNode,FILE* file);
-void Generate_IR_Asm(IRCode ircode);
+void Generate_IR_Asm(IRCode ircode, FILE* file);
+int GetRegNum(Operand op);
+
 #endif

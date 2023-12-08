@@ -77,8 +77,102 @@ void Generate_Asm(CodeList curNode,FILE* file){
 	CodeList nowNode = curNode;
 	while (nowNode != NULL)
 	{
-		Generate_IR_Asm(nowNode->IRcoding);
+		Generate_IR_Asm(nowNode->IRcoding, file);
 		nowNode = nowNode->next;
 	}
 	
+}
+
+int GetRegNum(Operand op);
+
+void Generate_IR_Asm(IRCode ircode, FILE* file){
+	if(LAB4_DEBUG)	printf("Go in IR_Asm\n");
+	if(ircode == NULL)	return;
+	switch(ircode->kind){
+		case IR_LABEL:
+			if(LAB4_DEBUG)	printf("lable%d\n", ircode->inform.labelID->inform.Label_Num);
+			fprintf(file, "lable%d\n", ircode->inform.labelID->inform.Label_Num);
+			break;
+		case IR_FUNCTION:
+			if(LAB4_DEBUG){
+				printf("%s:\n", ircode->inform.funcName);
+				
+			}
+			fprintf(file, "%s:\n", ircode->inform.funcName);
+			fprintf(file, "\tsubu $sp, $sp, 4\n");	
+			fprintf(file, "\tsw $fp, 0($sp)\n");
+			fprintf(file, "\tmove $fp, $sp\n");
+			fprintf(file, "");
+			breka;
+		case IR_ASSIGN:
+		{
+			Operand left = ircode->inform.assign.left;
+			Operand right = ircode->inform.assign.right;
+			if(right->kind == OP_CONSTANT){
+				int index = GetRegNum(left);
+				if(LAB4_DEBUG)	printf("\tli %s, %d\n", Regs[index]->RegName, right->inform.Value);
+				fprintf(file, "\tli %s, %d\n", Regs[index]->RegName, right->inform.Value);
+
+				return;		
+			}
+			if(right->kind != OP_ADDR && left->kind == OP_ADDR){
+				int leftindex = GetRegNum(left);
+				int rightindex = GetRegNum(right);
+				fprintf(file, "\t move %s %s\n", Regs[leftindex]->RegName, Regs[rightindex]->RegName);
+
+
+				return;
+			}
+			break;
+		}
+		case IR_ADD:
+		{
+			Operand result = ircode->inform.binOp.result;
+			Operand op1 = ircode->inform.binOp.op1;
+			Operand op2 = ircode->inform.binOp.op2;
+			int Resindex = GetRegNum(result);
+			int op1index = GetRegNum(op1);
+			int op2index = GetRegNum(op2);
+			fprintf(file, "\tadd %s %s %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
+
+			return;
+		}
+		case IR_SUB:
+		{
+			Operand result = ircode->inform.binOp.result;
+                        Operand op1 = ircode->inform.binOp.op1;
+                        Operand op2 = ircode->inform.binOp.op2;
+                        int Resindex = GetRegNum(result);
+                        int op1index = GetRegNum(op1);
+                        int op2index = GetRegNum(op2);
+                        fprintf(file, "\tsub %s %s %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
+
+                        return;
+		}
+		case IR_MUL:
+		{
+			Operand result = ircode->inform.binOp.result;
+                        Operand op1 = ircode->inform.binOp.op1;
+                        Operand op2 = ircode->inform.binOp.op2;
+                        int Resindex = GetRegNum(result);
+                        int op1index = GetRegNum(op1);
+                        int op2index = GetRegNum(op2);
+                        fprintf(file, "\tmul %s %s %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
+
+                        return;
+		}
+		case IR_DIV:
+		{
+			Operand result = ircode->inform.binOp.result;
+                        Operand op1 = ircode->inform.binOp.op1;
+                        Operand op2 = ircode->inform.binOp.op2;
+                        int Resindex = GetRegNum(result);
+                        int op1index = GetRegNum(op1);
+                        int op2index = GetRegNum(op2);
+                        fprintf(file, "\tdiv %s %s\n", Regs[op1index]->RegName, Regs[op2index]->RegName);
+			fprintf(file, "\tmflo %s\n", Regs[Resindex]->RegName);
+                        return;
+
+		}
+	}
 }

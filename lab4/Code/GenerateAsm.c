@@ -5,6 +5,8 @@
 
 Register Regs[32];
 VarStructure AsmVarList = NULL;
+int offset = 0;
+int Arg_Num = 0;
 
 
 void Generate_Asm(CodeList curNode,FILE* file){
@@ -31,7 +33,7 @@ void Generate_Asm(CodeList curNode,FILE* file){
 
 	//设置寄存器
 	for(int i = 0; i<32; i++){
-		Register newreg = (Register)malloc(sizeof(struct _Register));
+		Register newreg = (Register)malloc(sizeof(struct Register_));
 		if(i == 0){
 			newreg->RegName = "$zero";	//常数0
 		}
@@ -83,7 +85,43 @@ void Generate_Asm(CodeList curNode,FILE* file){
 	
 }
 
-int GetRegNum(Operand op);
+VarStructure findVar(Operand op){
+	VarStructure curNode = AsmVarList;
+	while(curNode != NULL){
+		if(curNode->op->kind != op->kind)	continue;
+		switch (op->kind)
+		{
+		case OP_TEMP:
+			if(curNode->op->inform.Temp_Num == op->inform.Temp_Num)
+				return curNode;
+		case OP_ARRAY:
+		case OP_ADDR:
+		case OP_VAR:
+			if(curNode->op->inform.Var_Num == op->inform.Var_Num)
+				return curNode;
+		default:
+			break;
+		}
+	}
+	return NULL;
+}
+int GetRegNum(Operand op){
+	int i;
+	if(op->kind == OP_CONSTANT){
+		for(i = 8; i<= 15 ; i++){
+			if(Regs[i]->var == NULL){
+				if(LAB4_DEBUG)	printf("Use the reg %s\n", Regs[i]->RegName);
+				return i;
+			}
+		}
+	}
+	else{
+		if(findVar(op)){
+
+		}
+	}
+
+}
 
 void Generate_IR_Asm(IRCode ircode, FILE* file){
 	if(LAB4_DEBUG)	printf("Go in IR_Asm\n");
@@ -103,7 +141,9 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
 			fprintf(file, "\tsw $fp, 0($sp)\n");
 			fprintf(file, "\tmove $fp, $sp\n");
 			fprintf(file, "");
-			breka;
+			//申请一段较大的栈空间（可通过$fp加上一段偏移寻址），保存局部变量等;
+			//初始化堆栈偏移量，函数形参个数等;
+			break;
 		case IR_ASSIGN:
 		{
 			Operand left = ircode->inform.assign.left;
@@ -115,12 +155,12 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
 
 				return;		
 			}
-			if(right->kind != OP_ADDR && left->kind == OP_ADDR){
+			else{
 				int leftindex = GetRegNum(left);
 				int rightindex = GetRegNum(right);
-				fprintf(file, "\t move %s %s\n", Regs[leftindex]->RegName, Regs[rightindex]->RegName);
+				fprintf(file, "\t move %s, %s\n", Regs[leftindex]->RegName, Regs[rightindex]->RegName);
 
-
+				//将x关联到的变量值溢出到栈上并标记偏移量
 				return;
 			}
 			break;
@@ -133,46 +173,177 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
 			int Resindex = GetRegNum(result);
 			int op1index = GetRegNum(op1);
 			int op2index = GetRegNum(op2);
-			fprintf(file, "\tadd %s %s %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
-
-			return;
+			fprintf(file, "\tadd %s, %s, %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
+			//将x关联到的变量值溢出到栈上并标记偏移量
+			break;
 		}
 		case IR_SUB:
 		{
 			Operand result = ircode->inform.binOp.result;
-                        Operand op1 = ircode->inform.binOp.op1;
-                        Operand op2 = ircode->inform.binOp.op2;
-                        int Resindex = GetRegNum(result);
-                        int op1index = GetRegNum(op1);
-                        int op2index = GetRegNum(op2);
-                        fprintf(file, "\tsub %s %s %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
-
-                        return;
+            Operand op1 = ircode->inform.binOp.op1;
+            Operand op2 = ircode->inform.binOp.op2;
+            int Resindex = GetRegNum(result);
+            int op1index = GetRegNum(op1);
+            int op2index = GetRegNum(op2);
+            fprintf(file, "\tsub %s, %s, %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
+            //将x关联到的变量值溢出到栈上并标记偏移量
+			break;
 		}
 		case IR_MUL:
 		{
 			Operand result = ircode->inform.binOp.result;
-                        Operand op1 = ircode->inform.binOp.op1;
-                        Operand op2 = ircode->inform.binOp.op2;
-                        int Resindex = GetRegNum(result);
-                        int op1index = GetRegNum(op1);
-                        int op2index = GetRegNum(op2);
-                        fprintf(file, "\tmul %s %s %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
-
-                        return;
+            Operand op1 = ircode->inform.binOp.op1;
+            Operand op2 = ircode->inform.binOp.op2;
+            int Resindex = GetRegNum(result);
+            int op1index = GetRegNum(op1);
+            int op2index = GetRegNum(op2);
+            fprintf(file, "\tmul %s, %s, %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
+			//将x关联到的变量值溢出到栈上并标记偏移量
+            break;
 		}
 		case IR_DIV:
 		{
 			Operand result = ircode->inform.binOp.result;
-                        Operand op1 = ircode->inform.binOp.op1;
-                        Operand op2 = ircode->inform.binOp.op2;
-                        int Resindex = GetRegNum(result);
-                        int op1index = GetRegNum(op1);
-                        int op2index = GetRegNum(op2);
-                        fprintf(file, "\tdiv %s %s\n", Regs[op1index]->RegName, Regs[op2index]->RegName);
+            Operand op1 = ircode->inform.binOp.op1;
+            Operand op2 = ircode->inform.binOp.op2;
+            int Resindex = GetRegNum(result);
+            int op1index = GetRegNum(op1);
+            int op2index = GetRegNum(op2);
+            fprintf(file, "\tdiv %s, %s\n", Regs[op1index]->RegName, Regs[op2index]->RegName);
 			fprintf(file, "\tmflo %s\n", Regs[Resindex]->RegName);
-                        return;
+			//将x关联到的变量值溢出到栈上并标记偏移量
+            break;
 
+		}
+		case IR_GET_ADDRVAL:
+		{
+			Operand op1 = ircode->inform.binOp.op1;
+            Operand op2 = ircode->inform.binOp.op2;
+			int op1index = GetRegNum(op1);
+            int op2index = GetRegNum(op2);
+			fprintf(file, "\tlw %s, 0(%s) \n", Regs[op1index]->RegName, Regs[op2index]->RegName);
+			//将x关联到的变量值溢出到栈上并标记偏移量
+			break;
+		}
+		case IR_GET_VAL:
+		{
+			Operand op1 = ircode->inform.binOp.op1;
+            Operand op2 = ircode->inform.binOp.op2;
+			int op1index = GetRegNum(op1);
+            int op2index = GetRegNum(op2);
+			fprintf(file, "\tsw %s, 0(%s) \n", Regs[op2index]->RegName, Regs[op1index]->RegName);
+			//将x关联到的变量值溢出到栈上并标记偏移量
+			break;
+		}
+		case IR_GOTO:
+		{
+			Operand Labelid = ircode->inform.labelID;
+			fprintf(file, "\tj label%d\n", Labelid->inform.Label_Num);
+			break;
+		}
+		case IR_CALL:
+		{
+			fprintf(file, "\tli $v1,%d\n",Arg_Num*4); // 实参占用的栈空间
+			fprintf(file, "\tsubu $sp, $sp, 4\n"); 
+			fprintf(file, "\tsw $v1, 0($sp)\n"); // 将实参占用栈空间保存在栈上
+			Arg_Num = 0; // 调用前处理ARG空间
+			fprintf(file,"\tsubu $sp, $sp, 4\n");
+			fprintf(file,"\tsw $ra, 0($sp)\n"); // 保存$ra寄存器
+			Operand ret = ircode->inform.call.ret;
+			int retindex = GetRegNum(ret);
+			fprintf(file, "\tjal %s\n", ircode->inform.call.funcName);
+			fprintf(file, "\tmove %s, $v0\n", Regs[retindex]->RegName);
+			//将x溢出到栈上;
+			fprintf(file,"\tlw $ra, 0($sp)\n"); // 恢复$ra的值
+			fprintf(file,"\taddi $sp, $sp, 4\n");
+
+			fprintf(file, "\tlw $v1, 0($sp)\n");
+			fprintf(file,"\taddi $sp, $sp, 4\n");
+			break;
+		}
+		case IR_RETURN:
+		{
+			Operand retVal = ircode->inform.retVal;
+			int retValIndex = GetRegNum(retVal);
+			fprintf(file, "\tmove $v0, %s\n", Regs[retValIndex]->RegName);
+			fprintf(file, "\tjr $ra\n");
+			break;
+		}
+		case IR_IF_GOTO:
+		{
+			char*relop;
+			if(equal_string(ircode->inform.if_goto.relop, "=="))
+			{
+				relop = "beq";
+			}
+			else if(equal_string(ircode->inform.if_goto.relop, "!="))
+			{
+				relop = "bne";
+			}
+			else if(equal_string(ircode->inform.if_goto.relop, ">"))
+			{
+				relop = "bgt";
+			}
+			else if(equal_string(ircode->inform.if_goto.relop, "<"))
+			{
+				relop = "blt";
+			}
+			else if(equal_string(ircode->inform.if_goto.relop, ">="))
+			{
+				relop = "bge";
+			}
+			else if(equal_string(ircode->inform.if_goto.relop, "<="))
+			{
+				relop = "ble";
+			}
+			Operand op1 = ircode->inform.if_goto.ifopleft;
+			Operand op2 = ircode->inform.if_goto.ifopright;
+			Operand labelID = ircode->inform.if_goto.gotoLabelID;
+			int op1index = GetRegNum(op1);
+			int op2index = GetRegNum(op2);
+			fprintf(file, "\t%s %s, %s, label%d\n", relop, Regs[op1index]->RegName, Regs[op2index]->RegName, labelID->inform.Label_Num);
+			break;
+		}
+		case IR_ARG:
+		{
+			VarStructure var = findVar(ircode->inform.arg);
+			fprintf(file, "\tlw $s0, %d($fp)\n", var->VarOffset);
+			fprintf(file, "\tsubu $sp, $sp, 4\n");
+			fprintf(file, "\tsw $s0, 0($sp)\n");
+			Arg_Num++;
+			break;
+		}
+		case IR_DEC:{
+
+		}
+		case IR_READ:
+		{
+			fprintf(file, "\taddi $sp, $sp, -4\n");
+			fprintf(file, "\tsw $ra, 0($sp)\n"); // 保存$ra寄存器内容
+			fprintf(file, "\tjal read\n");
+			int xIndex = GetRegNum(ircode->inform.read);
+			fprintf(file, "\tmove %s, $v0\n",Regs[xIndex]->RegName);
+			//将x关联到的变量值溢出到栈上并标记偏移量;
+			fprintf(file, "\tlw $ra, 0($sp)\n");
+			fprintf(file, "\taddi $sp, $sp, 4\n"); // 恢复$ra寄存器
+			break;
+		}
+		case IR_WRITE:
+		{
+			fprintf(file,"\taddi $sp, $sp, -4\n");
+			fprintf(file,"\tsw $ra, 0($sp)\n"); // 保存$ra寄存器内容
+			Operand write = ircode->inform.write;
+			int writeIndex = GetRegNum(write);
+			if(write->kind == OP_VAR || write->kind ==OP_TEMP){
+				fprintf(file,"\tmove $a0, %s\n", Regs[writeIndex]->RegName);
+			}else if(write->kind == OP_ADDR || write->kind == OP_ARRAY){
+				//fprintf(file, "\tlw $a0, 0(%s)\n", 变量或者数组名);
+			}
+			fprintf(file,"\tjal write\n"); // 跳转到write函数
+			//将寄存器x关联的变量值溢出到栈中记录偏移量;
+			fprintf(file,"\tlw $ra, 0($sp)\n");
+			fprintf(file,"\taddi $sp, $sp, 4\n"); // 恢复$ra内容
+			break;
 		}
 	}
 }

@@ -5,9 +5,10 @@
 
 Register Regs[32];
 VarStructure AsmVarList = NULL;
-int offset = 0;
+StackPointer nowFunctionStack = NULL;
 int Arg_Num = 0;
-
+int Param_Num = 0;
+int Last_clearReg = 8;
 
 void Generate_Asm(CodeList curNode,FILE* file){
 	// 打印目标代码数据段
@@ -79,10 +80,27 @@ void Generate_Asm(CodeList curNode,FILE* file){
 	CodeList nowNode = curNode;
 	while (nowNode != NULL)
 	{
-		Generate_IR_Asm(nowNode->IRcoding, file);
+		Generate_IR_Asm(nowNode, file);
 		nowNode = nowNode->next;
 	}
 	
+}
+
+char*GetVarName(Operand op){
+	char*name;
+	switch (op->kind)
+		{
+		case OP_TEMP:
+			sprintf(name, "t%d", op->inform.Temp_Num);
+			break;
+		case OP_ARRAY:
+		case OP_ADDR:
+		case OP_VAR:
+			sprintf(name, "v%d", op->inform.Var_Num);
+		default:
+			break;
+		}
+	return name;
 }
 
 VarStructure findVar(Operand op){
@@ -114,17 +132,56 @@ int GetRegNum(Operand op){
 				return i;
 			}
 		}
-	}
-	else{
-		if(findVar(op)){
-
+		for(i = 24; i<= 25 ; i++){
+			if(Regs[i]->var == NULL){
+				if(LAB4_DEBUG)	printf("Use the reg %s\n", Regs[i]->RegName);
+				return i;
+			}
 		}
 	}
-
+	else{
+		VarStructure opVar = findVar(op);
+		if(opVar != NULL){
+			return opVar->Reg;
+		}
+		else{
+			opVar = (VarStructure)malloc(sizeof(struct VarStructure_));
+			for(i = 8; i<= 15 ; i++){
+				if(Regs[i]->var == NULL){
+					if(LAB4_DEBUG)	printf("Use the reg %s\n", Regs[i]->RegName);
+					opVar->op = op;
+					opVar->Reg = i;
+					opVar->next = AsmVarList;
+					AsmVarList = opVar;
+					Regs[i]->var = opVar;
+					return i;
+				}
+			}
+			for(i = 24; i<= 25 ; i++){
+				if(Regs[i]->var == NULL){
+					if(LAB4_DEBUG)	printf("Use the reg %s\n", Regs[i]->RegName);
+					opVar->op = op;
+					opVar->Reg = i;
+					opVar->next = AsmVarList;
+					AsmVarList = opVar;
+					Regs[i]->var = opVar;
+					return i;
+				}
+			}
+		}
+	}
 }
 
-void Generate_IR_Asm(IRCode ircode, FILE* file){
+void Clear_Reg(int index){
+	if(LAB4_DEBUG)	printf("The reg %s is clear\n", Regs[index]->RegName);
+	Regs[index]->var = NULL;
+	return;
+}
+
+void Generate_IR_Asm(CodeList curNode, FILE* file){
 	if(LAB4_DEBUG)	printf("Go in IR_Asm\n");
+	if(curNode == NULL)	return;
+	IRCode ircode = curNode->IRcoding;
 	if(ircode == NULL)	return;
 	switch(ircode->kind){
 		case IR_LABEL:
@@ -140,8 +197,12 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
 			fprintf(file, "\tsubu $sp, $sp, 4\n");	
 			fprintf(file, "\tsw $fp, 0($sp)\n");
 			fprintf(file, "\tmove $fp, $sp\n");
-			fprintf(file, "");
 			//申请一段较大的栈空间（可通过$fp加上一段偏移寻址），保存局部变量等;
+			StackPointer newFuncStack = (StackPointer)malloc(sizeof(struct StackPointer_));
+			newFuncStack->CurOffset = -4;
+			newFuncStack->next = nowFunctionStack;
+			nowFunctionStack = newFuncStack;
+			fprintf(file, "\taddi $sp, $fp, 1024\n");
 			//初始化堆栈偏移量，函数形参个数等;
 			break;
 		case IR_ASSIGN:
@@ -152,15 +213,20 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
 				int index = GetRegNum(left);
 				if(LAB4_DEBUG)	printf("\tli %s, %d\n", Regs[index]->RegName, right->inform.Value);
 				fprintf(file, "\tli %s, %d\n", Regs[index]->RegName, right->inform.Value);
-
+				nowFunctionStack->CurOffset -= 4;
+				Regs[index]->var->VarOffset = nowFunctionStack->CurOffset;
+				fprintf(file, "\tsw %s, %d($fp)\n", Regs[index]->RegName, nowFunctionStack->CurOffset);
 				return;		
 			}
 			else{
 				int leftindex = GetRegNum(left);
 				int rightindex = GetRegNum(right);
-				fprintf(file, "\t move %s, %s\n", Regs[leftindex]->RegName, Regs[rightindex]->RegName);
+				fprintf(file, "\tmove %s, %s\n", Regs[leftindex]->RegName, Regs[rightindex]->RegName);
 
 				//将x关联到的变量值溢出到栈上并标记偏移量
+				nowFunctionStack->CurOffset -= 4;
+				Regs[leftindex]->var->VarOffset = nowFunctionStack->CurOffset;
+				fprintf(file, "\tsw %s, %d($fp)\n", Regs[leftindex]->RegName, nowFunctionStack->CurOffset);
 				return;
 			}
 			break;
@@ -175,6 +241,9 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
 			int op2index = GetRegNum(op2);
 			fprintf(file, "\tadd %s, %s, %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
 			//将x关联到的变量值溢出到栈上并标记偏移量
+			nowFunctionStack->CurOffset -= 4;
+			Regs[Resindex]->var->VarOffset = nowFunctionStack->CurOffset;
+			fprintf(file, "\tsw %s, %d($fp)\n", Regs[Resindex]->RegName, nowFunctionStack->CurOffset);
 			break;
 		}
 		case IR_SUB:
@@ -187,6 +256,9 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
             int op2index = GetRegNum(op2);
             fprintf(file, "\tsub %s, %s, %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
             //将x关联到的变量值溢出到栈上并标记偏移量
+			nowFunctionStack->CurOffset -= 4;
+			Regs[Resindex]->var->VarOffset = nowFunctionStack->CurOffset;
+			fprintf(file, "\tsw %s, %d($fp)\n", Regs[Resindex]->RegName, nowFunctionStack->CurOffset);
 			break;
 		}
 		case IR_MUL:
@@ -199,6 +271,9 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
             int op2index = GetRegNum(op2);
             fprintf(file, "\tmul %s, %s, %s\n", Regs[Resindex]->RegName, Regs[op1index]->RegName, Regs[op2index]->RegName);
 			//将x关联到的变量值溢出到栈上并标记偏移量
+			nowFunctionStack->CurOffset -= 4;
+			Regs[Resindex]->var->VarOffset = nowFunctionStack->CurOffset;
+			fprintf(file, "\tsw %s, %d($fp)\n", Regs[Resindex]->RegName, nowFunctionStack->CurOffset);
             break;
 		}
 		case IR_DIV:
@@ -212,6 +287,9 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
             fprintf(file, "\tdiv %s, %s\n", Regs[op1index]->RegName, Regs[op2index]->RegName);
 			fprintf(file, "\tmflo %s\n", Regs[Resindex]->RegName);
 			//将x关联到的变量值溢出到栈上并标记偏移量
+			nowFunctionStack->CurOffset -= 4;
+			Regs[Resindex]->var->VarOffset = nowFunctionStack->CurOffset;
+			fprintf(file, "\tsw %s, %d($fp)\n", Regs[Resindex]->RegName, nowFunctionStack->CurOffset);
             break;
 
 		}
@@ -223,6 +301,9 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
             int op2index = GetRegNum(op2);
 			fprintf(file, "\tlw %s, 0(%s) \n", Regs[op1index]->RegName, Regs[op2index]->RegName);
 			//将x关联到的变量值溢出到栈上并标记偏移量
+			nowFunctionStack->CurOffset -= 4;
+			Regs[op1index]->var->VarOffset = nowFunctionStack->CurOffset;
+			fprintf(file, "\tsw %s, %d($fp)\n", Regs[op1index]->RegName, nowFunctionStack->CurOffset);
 			break;
 		}
 		case IR_GET_VAL:
@@ -233,6 +314,9 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
             int op2index = GetRegNum(op2);
 			fprintf(file, "\tsw %s, 0(%s) \n", Regs[op2index]->RegName, Regs[op1index]->RegName);
 			//将x关联到的变量值溢出到栈上并标记偏移量
+			nowFunctionStack->CurOffset -= 4;
+			Regs[op1index]->var->VarOffset = nowFunctionStack->CurOffset;
+			fprintf(file, "\tsw %s, %d($fp)\n", Regs[op1index]->RegName, nowFunctionStack->CurOffset);
 			break;
 		}
 		case IR_GOTO:
@@ -254,6 +338,9 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
 			fprintf(file, "\tjal %s\n", ircode->inform.call.funcName);
 			fprintf(file, "\tmove %s, $v0\n", Regs[retindex]->RegName);
 			//将x溢出到栈上;
+			nowFunctionStack->CurOffset -= 4;
+			Regs[retindex]->var->VarOffset = nowFunctionStack->CurOffset;
+			fprintf(file, "\tsw %s, %d($fp)\n", Regs[retindex]->RegName, nowFunctionStack->CurOffset);
 			fprintf(file,"\tlw $ra, 0($sp)\n"); // 恢复$ra的值
 			fprintf(file,"\taddi $sp, $sp, 4\n");
 
@@ -337,10 +424,13 @@ void Generate_IR_Asm(IRCode ircode, FILE* file){
 			if(write->kind == OP_VAR || write->kind ==OP_TEMP){
 				fprintf(file,"\tmove $a0, %s\n", Regs[writeIndex]->RegName);
 			}else if(write->kind == OP_ADDR || write->kind == OP_ARRAY){
-				//fprintf(file, "\tlw $a0, 0(%s)\n", 变量或者数组名);
+				fprintf(file, "\tlw $a0, 0(%s)\n", GetVarName(write));
 			}
 			fprintf(file,"\tjal write\n"); // 跳转到write函数
 			//将寄存器x关联的变量值溢出到栈中记录偏移量;
+			nowFunctionStack->CurOffset -= 4;
+			Regs[writeIndex]->var->VarOffset = nowFunctionStack->CurOffset;
+			fprintf(file, "\tsw %s, %d($fp)\n", Regs[writeIndex]->RegName, nowFunctionStack->CurOffset);
 			fprintf(file,"\tlw $ra, 0($sp)\n");
 			fprintf(file,"\taddi $sp, $sp, 4\n"); // 恢复$ra内容
 			break;

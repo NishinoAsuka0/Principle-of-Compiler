@@ -734,8 +734,8 @@ CodeList Translate_Exp(struct Node* node, Operand value){
                        	 	}
                   	        else*/
                                 valcode = CreateIRCode(IR_ASSIGN);
-                        	ircode->inform.assign.left = value;
-                	        ircode->inform.assign.right = op;
+                        	valcode->inform.assign.left = value;
+                	        valcode->inform.assign.right = op;
         	                code = Merge_CodeList(code, CreateNewCodeList(valcode));
 			}
 			return Merge_CodeList(Exp, code);
@@ -788,11 +788,19 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 		Operand Label1 = CreateLabel();
 		Operand Label2 = CreateLabel();
 		IRCode truecode = CreateIRCode(IR_ASSIGN);
-                truecode->inform.assign.left = value;     // 构建左值
-                truecode->inform.assign.right = CreateConstant(1);       // 构建常量1
 		IRCode falsecode = CreateIRCode(IR_ASSIGN);
-                falsecode->inform.assign.left = value;     // 构建左值
-                falsecode->inform.assign.right = CreateConstant(0);       // 构建常量0
+		if(value != NULL){
+            truecode->inform.assign.left = value;     // 构建左值
+            truecode->inform.assign.right = CreateConstant(1);       // 构建常量1
+			falsecode->inform.assign.left = value;     // 构建左值
+            falsecode->inform.assign.right = CreateConstant(0);       // 构建常量0
+		}
+		else{
+			truecode->inform.assign.left = CreateTemp();     // 构建左值
+            truecode->inform.assign.right = CreateConstant(1);       // 构建常量1
+			falsecode->inform.assign.left = CreateTemp();     // 构建左值
+            falsecode->inform.assign.right = CreateConstant(0);       // 构建常量0
+		}
 		CodeList truelist = CreateNewCodeList(truecode);
 		CodeList falselist = CreateNewCodeList(falsecode);
 		CodeList Cond = Translate_Cond(node, Label1, Label2);
@@ -810,6 +818,8 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 		CodeList Exp2 = Translate_Exp(node->firstChild->bro->bro, Temp2);
 		CodeList Exp = Merge_CodeList(Exp1, Exp2);
 		char* RELOP = node->firstChild->bro->nodeName;
+		if(value == NULL)
+			value = CreateTemp();
 		if(equal_string(RELOP, "PLUS")){
 			if(LAB3_DEBUG)  printf("Exp := Exp PLUS Exp\n");
 			IRCode pluscode = CreateIRCode(IR_ADD);
@@ -974,7 +984,7 @@ CodeList Translate_Cond(struct Node* node, Operand TrueLabel, Operand FalseLabel
         if(node == NULL)
                 return NULL;
 	if(equal_string(node->firstChild->nodeName, "NOT")){
-		return Translate_Cond(node, FalseLabel, TrueLabel);
+		return Translate_Cond(node->firstChild->bro, FalseLabel, TrueLabel);
 	}
 	else if(Use_This_Rule(node, 3, "Exp", "RELOP", "Exp")){
 		if(LAB3_DEBUG)  printf("Exp := Exp RELOP Exp\n");

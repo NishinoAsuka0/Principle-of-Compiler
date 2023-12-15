@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "IRcode.h"
 
-#define LAB4_DEBUG 0
+#define LAB4_DEBUG 1
 
 
 
@@ -24,13 +24,14 @@ struct Register_{
 	VarStructure var;
 };
 
-struct StackPointer_{
+/*struct StackPointer_{
 	int CurOffset;
 	StackPointer next;
-};
-void Generate_Asm(CodeList curNode, FILE* file);
-void Generate_IR_Asm(CodeList curNode, FILE* file);
+};*/
+void Generate_Asm(CodeList curNode, FILE* Asmfile);
+void Generate_IR_Asm(CodeList curNode);
 char*GetVarName(Operand op);
 VarStructure findVar(Operand op);
 int GetRegNum(Operand op);
+void Lab4_Debug_Print(CodeList listhead);
 #endif

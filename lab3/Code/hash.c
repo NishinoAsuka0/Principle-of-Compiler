@@ -21,6 +21,10 @@ void initHashTable(){
 	strcpy(writename, "write");
 	funcread->name = readname;
 	funcread->state = 1;
+	Type retValType = (Type)malloc(sizeof(struct Type_));
+	retValType->kind = BASIC;
+	retValType->inform.basic = 1;
+	retValType->possition = RIGHT;
 	funcwrite->name = writename;
 	funcwrite->state = 1;
 	readType->inform.function = funcread;

@@ -11,6 +11,7 @@ extern void destroyTree(struct Node* rootNode);
 extern void semantic_check_start(struct Node* rootNode);
 extern struct CodeList_* IRCode_start(struct Node* root);
 extern void printIRCode(struct CodeList_* curNode, FILE*file);
+extern void Generate_Asm(struct CodeList_* curNode, FILE* Asmfile);
 int main(int argc, char** argv) {
     if (argc <= 1) 
         return 1;
@@ -31,11 +32,12 @@ int main(int argc, char** argv) {
     //printf("lab3 start");
     struct CodeList_* IRList = IRCode_start(Root);
     FILE*ff;
-    if(argv[2] == NULL){ff = fopen("output.ir", "w");}
+    if(argv[2] == NULL){ff = fopen("output.s", "w");}
     else
         ff =fopen(argv[2], "w"); // 构造输出中间代码文件
     //printf("tt\n");
-    printIRCode(IRList, ff); // 写入生成的中间代码
+    //printIRCode(IRList, ff); // 写入生成的中间代码
+    Generate_Asm(IRList, ff);
     fclose(ff); // 关闭文件
     destroyTree(Root);
     return 0;

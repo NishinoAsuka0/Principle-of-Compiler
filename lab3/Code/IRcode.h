@@ -1,6 +1,6 @@
 #ifndef IRCODE
 #define IRCODE
-#define LAB3_DEBUG 0
+#define LAB3_DEBUG 1
 #include "semantic.h"
 
 
@@ -66,17 +66,17 @@ struct IRCode_{
 	IRCodeKind kind;
 	union{
 		Operand labelID;  // LABEL
-        	char* funcName;  // FUNCTION
-        	struct { Operand left; Operand right; } assign;  // ASSIGN
-        	struct { Operand result; Operand op1; Operand op2; } binOp;  // ADD, SUB, MUL, DIV
-        	Operand gotoLabelID;  // GOTO
-        	struct { Operand ifopleft; char*relop; Operand ifopright; Operand gotoLabelID; } if_goto;  // IF_GOTO
-        	Operand retVal;  // RETURN
-        	struct { Operand VarType; int size; } dec;  // DEC
-        	Operand arg;  // ARG
-        	struct { Operand ret; char* funcName; } call;  // CALL
-        	Operand param;  // PARAM
-        	Operand read;  // READ
+        char* funcName;  // FUNCTION
+        struct { Operand left; Operand right; } assign;  // ASSIGN
+        struct { Operand result; Operand op1; Operand op2; } binOp;  // ADD, SUB, MUL, DIV
+        Operand gotoLabelID;  // GOTO
+        struct { Operand ifopleft; char*relop; Operand ifopright; Operand gotoLabelID; } if_goto;  // IF_GOTO
+        Operand retVal;  // RETURN
+        struct { Operand VarType; int size; } dec;  // DEC
+        Operand arg;  // ARG
+        struct { Operand ret; char* funcName; } call;  // CALL
+        Operand param;  // PARAM
+        Operand read;  // READ
 		Operand write; //WRITE
 	}inform;
 };

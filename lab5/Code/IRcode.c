@@ -658,8 +658,6 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 			}
 			else{
 				IRCode ircode = CreateIRCode(IR_CALL);
-				if(value == NULL)
-					value = CreateTemp();
 				ircode->inform.call.ret = value;
 				ircode->inform.call.funcName = nowfunc->name;
 				return CreateNewCodeList(ircode);
@@ -930,8 +928,6 @@ CodeList Translate_Exp(struct Node* node, Operand value){
 		if(LAB3_DEBUG)  printf("Exp := INT\n");
 		int val = node->firstChild->Valint;
 		IRCode ircode = CreateIRCode(IR_ASSIGN);
-		if(value == NULL)
-			value = CreateTemp();
 		ircode->inform.assign.left = value;	// 构建左值
 		ircode->inform.assign.right = CreateConstant(val);	 // 构建常量
 		//printf("aaa\n");

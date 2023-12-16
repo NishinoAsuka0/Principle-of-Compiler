@@ -1,0 +1,14 @@
+int func() {
+    int arr[5];
+    arr[0] = 1;
+    arr[arr[0]+2] = 9;
+    write(arr[3]);
+    return 0;
+}
+
+
+int main() {
+    func();
+    return 0;
+}
+
